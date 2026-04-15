@@ -75,8 +75,8 @@ export default function Home() {
               src="/1776271968194.png" 
               alt="Ejindu Favour Blessing" 
               style={{ 
-                width: '200px', 
-                height: '200px', 
+                width: '250px', 
+                height: '250px', 
                 borderRadius: '50%', 
                 objectFit: 'cover', 
                 objectPosition: 'center top',
