@@ -21,7 +21,7 @@ export default function Layout({ children }: { children: ReactNode }) {
       <header className="bg-white border-b border-editorial-border px-[50px] py-[30px]">
         <div className="container mx-auto flex flex-col items-center gap-6">
           <img 
-            src="/profile.png" 
+            src="/1776271968194.png" 
             alt="Ejindu Favour Blessing" 
             style={{ 
               width: '150px', 
