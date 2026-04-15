@@ -64,7 +64,27 @@ export default function Home() {
         transition={{ duration: 0.6 }}
         className="bg-white p-[50px] flex flex-col justify-between"
       >
-        <div className="hero-text pt-10">
+        <div className="hero-text pt-4">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="flex justify-center mb-10"
+          >
+            <img 
+              src="/1776271968194.png" 
+              alt="Ejindu Favour Blessing" 
+              style={{ 
+                width: '200px', 
+                height: '200px', 
+                borderRadius: '50%', 
+                objectFit: 'cover', 
+                objectPosition: 'center top',
+                border: '3px solid #0a192f', 
+                display: 'block' 
+              }} 
+            />
+          </motion.div>
           <motion.span 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}

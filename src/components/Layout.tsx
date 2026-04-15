@@ -19,25 +19,11 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex flex-col bg-light-gray text-navy selection:bg-navy/10">
       {/* Navigation */}
       <header className="bg-white border-b border-editorial-border px-[50px] py-[30px]">
-        <div className="container mx-auto flex flex-col items-center gap-6">
-          <img 
-            src="/1776271968194.png" 
-            alt="Ejindu Favour Blessing" 
-            style={{ 
-              width: '150px', 
-              height: '150px', 
-              borderRadius: '50%', 
-              objectFit: 'cover', 
-              border: '3px solid #0a192f', 
-              margin: '0 auto', 
-              display: 'block' 
-            }} 
-          />
-          <div className="w-full flex items-baseline justify-between">
-            <Link to="/" className="text-2xl font-serif font-bold tracking-tight text-navy uppercase">
-              Ejindu Favour Blessing
-            </Link>
-            <nav className="hidden md:flex items-center gap-[30px]">
+        <div className="container mx-auto flex items-baseline justify-between">
+          <Link to="/" className="text-2xl font-serif font-bold tracking-tight text-navy uppercase">
+            Ejindu Favour Blessing
+          </Link>
+          <nav className="hidden md:flex items-center gap-[30px]">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -55,7 +41,6 @@ export default function Layout({ children }: { children: ReactNode }) {
               </button>
             </HireMeModal>
           </nav>
-          </div>
         </div>
       </header>
 
