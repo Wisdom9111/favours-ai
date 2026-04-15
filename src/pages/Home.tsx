@@ -43,7 +43,7 @@ export default function Home() {
     {
       date: "2024 – 2024",
       title: "Secretary",
-      location: "Hovland Nigeria Ltd",
+      location: "Norland Nigeria Ltd",
     },
   ];
 

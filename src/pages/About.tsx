@@ -26,7 +26,7 @@ export default function About() {
     },
     {
       role: "Secretary",
-      company: "Hovland Nigeria Ltd",
+      company: "Norland Nigeria Ltd",
       period: "Aug 2024 – Dec 2024",
       description: "Managed correspondence, scheduled meetings, maintained confidential filing systems, and prepared official reports.",
     },

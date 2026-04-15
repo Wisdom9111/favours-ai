@@ -61,7 +61,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-[12px] leading-relaxed opacity-90 text-center md:text-left">
             <p className="font-bold mb-1">Contact:</p>
-            <p>favourengels899@gmail.com | +234 704 302 3189</p>
+            <p>ejindufavour14@gmail.com | +234 704 302 8109</p>
             <p>📍 Location: Lagos, Nigeria | Supporting Clients Globally</p>
           </div>
           <div className="flex flex-wrap justify-center gap-[20px] opacity-60 text-[11px] font-semibold uppercase tracking-wider">

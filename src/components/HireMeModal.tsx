@@ -23,14 +23,14 @@ export function HireMeModal({ children }: { children: React.ReactElement }) {
         </DialogHeader>
         <div className="p-8 space-y-4">
           <a
-            href="mailto:favourengels899@gmail.com?subject=Inquiry for Virtual Assistant Services"
+            href="mailto:ejindufavour14@gmail.com?subject=Inquiry for Virtual Assistant Services"
             className="flex items-center justify-center gap-3 w-full py-4 bg-navy text-white rounded-xl font-semibold uppercase tracking-wider text-sm transition-all duration-300 hover:scale-[1.02] hover:shadow-lg active:scale-95"
           >
             <Mail className="w-5 h-5" />
             Contact via Email
           </a>
           <a
-            href="https://wa.me/2347043022169"
+            href="https://wa.me/2347043028109"
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-3 w-full py-4 bg-white border-2 border-navy text-navy rounded-xl font-semibold uppercase tracking-wider text-sm transition-all duration-300 hover:bg-navy/5 hover:scale-[1.02] hover:shadow-lg active:scale-95"
