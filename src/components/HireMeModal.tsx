@@ -8,12 +8,10 @@ import {
 import { Mail, MessageCircle } from "lucide-react";
 import React from "react";
 
-export function HireMeModal({ children }: { children: React.ReactNode }) {
+export function HireMeModal({ children }: { children: React.ReactElement }) {
   return (
     <Dialog>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
+      <DialogTrigger render={children} />
       <DialogContent className="sm:max-w-[425px] p-0 overflow-hidden border-none bg-white rounded-2xl shadow-2xl">
         <DialogHeader className="bg-navy p-8 text-center">
           <DialogTitle className="text-white font-serif text-2xl tracking-tight">

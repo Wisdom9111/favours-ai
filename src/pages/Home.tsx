@@ -64,30 +64,7 @@ export default function Home() {
         transition={{ duration: 0.6 }}
         className="bg-white p-[50px] flex flex-col justify-between"
       >
-        <div className="hero-text">
-          {/* Profile Image Container */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="flex flex-col items-center mb-12"
-          >
-            <div className="w-48 h-48 rounded-full border border-navy p-1 flex items-center justify-center overflow-hidden bg-light-gray relative group shadow-sm mb-4">
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-navy/20 z-0">
-                <User className="w-16 h-16 mb-2 opacity-20" />
-                <span className="text-[10px] font-bold uppercase tracking-widest">Placeholder Photo</span>
-              </div>
-              <img 
-                src="/profile.jpg" 
-                alt="Ejindu Favour Blessing" 
-                className="relative z-10 w-full h-full object-cover rounded-full transition-transform duration-500 group-hover:scale-105"
-                onError={(e) => (e.currentTarget.style.display = 'none')}
-                referrerPolicy="no-referrer"
-              />
-            </div>
-            <h2 className="text-navy font-serif text-xl uppercase tracking-[2px] text-center">Ejindu Favour Blessing</h2>
-          </motion.div>
-          
+        <div className="hero-text pt-10">
           <motion.span 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
