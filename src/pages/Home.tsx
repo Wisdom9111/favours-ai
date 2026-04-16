@@ -116,12 +116,20 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.3 }}
-            className="flex gap-3"
+            className="flex flex-wrap gap-3"
           >
             <HireMeModal>
               <button className="editorial-btn editorial-btn-primary">Hire Me</button>
             </HireMeModal>
             <a href="#services" className="editorial-btn editorial-btn-secondary">Services</a>
+            <a 
+              href="https://favourcustomersupport.my.canva.site/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="editorial-btn border border-navy text-navy hover:bg-navy hover:text-white text-center"
+            >
+              View Full Portfolio
+            </a>
           </motion.div>
         </div>
         <motion.div 
