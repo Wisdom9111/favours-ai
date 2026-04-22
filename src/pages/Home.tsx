@@ -123,7 +123,7 @@ export default function Home() {
             </HireMeModal>
             <a href="#services" className="editorial-btn editorial-btn-secondary">Services</a>
             <a 
-              href="https://favourcustomersupport.my.canva.site/" 
+              href="https://favourcreatives.my.canva.site/" 
               target="_blank" 
               rel="noopener noreferrer" 
               className="editorial-btn border border-navy text-navy hover:bg-navy hover:text-white text-center"
