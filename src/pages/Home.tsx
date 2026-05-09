@@ -149,8 +149,11 @@ export default function Home() {
       {/* Content Grid & Hero Badge Area */}
       <section className="bg-white flex flex-col">
         {/* Hero Badge Area */}
-        <div className="relative h-[600px] w-full bg-navy overflow-hidden border-b border-editorial-border p-10 flex items-center justify-center">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.05),transparent)] z-0" />
+        <div 
+          className="relative h-[600px] w-full bg-navy overflow-hidden border-b border-editorial-border p-10 flex items-center justify-center bg-center bg-cover bg-no-repeat"
+          style={{ backgroundImage: 'url("/Logo2.png")' }}
+        >
+          <div className="absolute inset-0 bg-navy/50 z-0" /> {/* Added a fallback overlay for better text readability */}
           
           {/* Professional Excellence Badge */}
           <motion.div 
