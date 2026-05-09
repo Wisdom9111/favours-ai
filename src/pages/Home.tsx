@@ -150,17 +150,17 @@ export default function Home() {
       <section className="bg-white flex flex-col">
         {/* Hero Badge Area */}
         <div 
-          className="relative h-[600px] w-full bg-navy overflow-hidden border-b border-editorial-border p-10 flex items-center justify-center bg-center bg-cover bg-no-repeat"
+          className="relative h-[600px] w-full overflow-hidden border-b border-editorial-border p-10 flex items-center justify-center bg-center bg-cover bg-no-repeat bg-navy"
           style={{ backgroundImage: 'url("/Logo2.png")' }}
         >
-          <div className="absolute inset-0 bg-navy/50 z-0" /> {/* Added a fallback overlay for better text readability */}
+          <div className="absolute inset-0 bg-black/30 z-0" /> {/* Light overlay to ensure text is readable over the image */}
           
           {/* Professional Excellence Badge */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8 }}
-            className="relative z-10 w-full max-w-xl p-12 bg-navy border-2 border-white/20 rounded-2xl shadow-[0_0_50px_rgba(255,255,255,0.05)] flex flex-col items-center text-center group"
+            className="relative z-10 w-full max-w-xl p-12 bg-navy/40 backdrop-blur-md border border-white/20 rounded-2xl shadow-2xl flex flex-col items-center text-center group"
           >
             <div className="absolute inset-0 rounded-2xl border border-white/10 group-hover:border-white/30 transition-colors duration-500" />
             
