@@ -19,9 +19,17 @@ export default function Layout({ children }: { children: ReactNode }) {
     <div className="min-h-screen flex flex-col bg-light-gray text-navy selection:bg-navy/10">
       {/* Navigation */}
       <header className="bg-white border-b border-editorial-border px-[50px] py-[30px]">
-        <div className="container mx-auto flex items-baseline justify-between">
-          <Link to="/" className="text-2xl font-serif font-bold tracking-tight text-navy uppercase">
-            Ejindu Favour Blessing
+        <div className="container mx-auto flex items-center justify-between">
+          <Link to="/" className="flex items-center gap-4 text-2xl font-serif font-bold tracking-tight text-navy uppercase">
+            <img 
+              src="/Logo2.png" 
+              alt="" 
+              className="h-12 w-auto object-contain"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+            <span>Ejindu Favour Blessing</span>
           </Link>
           <nav className="hidden md:flex items-center gap-[30px]">
             {navLinks.map((link) => (
