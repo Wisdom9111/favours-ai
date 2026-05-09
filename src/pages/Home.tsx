@@ -72,7 +72,7 @@ export default function Home() {
             className="flex justify-center mb-10"
           >
             <img 
-              src="/Profile.png" 
+              src={`/Profile.png?v=${Date.now()}`} 
               alt="Ejindu Favour Blessing" 
               style={{ 
                 width: '250px', 
@@ -151,7 +151,7 @@ export default function Home() {
         {/* Hero Badge Area */}
         <div 
           className="relative h-[600px] w-full overflow-hidden border-b border-editorial-border p-10 flex items-center justify-center bg-center bg-cover bg-no-repeat bg-navy"
-          style={{ backgroundImage: 'url("/Logo2.png")' }}
+          style={{ backgroundImage: `url("/Logo2.png?v=${Date.now()}")` }}
         >
           <div className="absolute inset-0 bg-black/30 z-0" /> {/* Light overlay to ensure text is readable over the image */}
           
