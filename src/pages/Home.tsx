@@ -72,7 +72,7 @@ export default function Home() {
             className="flex justify-center mb-10"
           >
             <img 
-              src="/1776271968194.png" 
+              src="/Profile.png" 
               alt="Ejindu Favour Blessing" 
               style={{ 
                 width: '250px', 
