@@ -3,12 +3,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { GraduationCap, Briefcase, Award } from "lucide-react";
-import { usePortfolio } from "../hooks/usePortfolio";
 
 export default function About() {
-  const { profile, experiences: fbExperiences, skills: fbSkills, loading } = usePortfolio();
-
-  const defaultExperiences = [
+  const experiences = [
     {
       role: "Customer Support Specialist / Virtual Assistant",
       company: "Self-Employed",
@@ -35,19 +32,16 @@ export default function About() {
     },
   ];
 
-  const defaultSkills = [
-    { id: '1', name: "Customer Support" },
-    { id: '2', name: "Virtual Assistance" },
-    { id: '3', name: "Professional Communication" },
-    { id: '4', name: "Data Entry & Record Keeping" },
-    { id: '5', name: "Scheduling" },
-    { id: '6', name: "Problem Solving" },
-    { id: '7', name: "Time Management" },
-    { id: '8', name: "Remote Work Efficiency" },
+  const skills = [
+    "Customer Support",
+    "Virtual Assistance",
+    "Professional Communication",
+    "Data Entry & Record Keeping",
+    "Scheduling",
+    "Problem Solving",
+    "Time Management",
+    "Remote Work Efficiency",
   ];
-
-  const experiences = fbExperiences.length > 0 ? fbExperiences : defaultExperiences;
-  const skills = fbSkills.length > 0 ? fbSkills : defaultSkills;
 
   return (
     <div className="grid lg:grid-cols-[380px_1fr] gap-[1px] bg-editorial-border min-h-[calc(100vh-100px)]">
@@ -110,9 +104,9 @@ export default function About() {
         >
           <span className="section-title">Core Skills</span>
           <div className="flex flex-wrap gap-2">
-            {skills.map((skill: any, i: number) => (
-              <span key={skill.id || i} className="inline-block px-[10px] py-[4px] border border-editorial-border text-[11px] uppercase tracking-wider">
-                {skill.name}
+            {skills.map((skill, i) => (
+              <span key={i} className="inline-block px-[10px] py-[4px] border border-editorial-border text-[11px] uppercase tracking-wider">
+                {skill}
               </span>
             ))}
           </div>
@@ -130,9 +124,9 @@ export default function About() {
           Professional Timeline
         </motion.span>
         <div className="grid md:grid-cols-2 gap-8">
-          {experiences.map((exp: any, i: number) => (
+          {experiences.map((exp, i) => (
             <motion.div 
-              key={exp.id || i} 
+              key={i} 
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -197,11 +191,12 @@ export default function About() {
               <p className="mb-4 text-lg md:text-xl font-serif italic text-navy/80 leading-relaxed">
                 "With a solid foundation in Computer Science and a passion for exceptional service, I bridge the gap between technical efficiency and human-centric support."
               </p>
-              <div className="whitespace-pre-wrap">
-                {profile?.detailedProfileSummary || `My career has been defined by a commitment to streamlining operations and ensuring that every customer interaction is handled with professionalism and care. I thrive in remote environments, leveraging digital tools to maintain high levels of organization and productivity. 
-
-Whether it's managing complex schedules, resolving customer complaints, or optimizing administrative workflows, I bring a detail-oriented approach to every task.`}
-              </div>
+              <p className="mb-4">
+                My career has been defined by a commitment to streamlining operations and ensuring that every customer interaction is handled with professionalism and care. I thrive in remote environments, leveraging digital tools to maintain high levels of organization and productivity. 
+              </p>
+              <p>
+                Whether it's managing complex schedules, resolving customer complaints, or optimizing administrative workflows, I bring a detail-oriented approach to every task.
+              </p>
             </motion.div>
           </div>
         </div>

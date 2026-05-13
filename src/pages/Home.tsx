@@ -4,64 +4,56 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { HireMeModal } from "../components/HireMeModal";
-import { usePortfolio } from "../hooks/usePortfolio";
-
-// Maps string to icon component dynamically or fallback
-const iconMap: Record<string, any> = {
-  Headphones,
-  Settings,
-  UserCheck,
-  CheckCircle2,
-  User
-};
 
 export default function Home() {
-  const { profile, services: fbServices, experiences: fbExperiences, loading } = usePortfolio();
-
-  // Fallback static data if nothing is in db
-  const defaultServices = [
+  const services = [
     {
       title: "Customer Support",
       description: "Expert handling of inquiries and complaints via Phone, Email, Chat, and WhatsApp.",
-      icon: "Headphones",
+      icon: Headphones,
     },
     {
       title: "Administrative Management",
       description: "Seamless scheduling, inventory tracking, documentation, and workflow optimization.",
-      icon: "Settings",
+      icon: Settings,
     },
     {
       title: "Virtual Assistance",
       description: "Remote support utilizing top digital tools to keep your business organized and efficient.",
-      icon: "UserCheck",
+      icon: UserCheck,
     },
   ];
 
-  const defaultExperiences = [
+  const experiences = [
     {
-      period: "2025 – Present",
-      role: "Customer Support / VA",
+      date: "2025 – Present",
+      title: "Customer Support / VA",
       location: "Self-Employed",
     },
     {
-      period: "2023 – 2025",
-      role: "Administrative Manager",
+      date: "2023 – 2025",
+      title: "Administrative Manager",
       location: "Melissa Black Boutique",
     },
     {
-      period: "2024 – 2024",
-      role: "Front Desk Representative",
+      date: "2024 – 2024",
+      title: "Front Desk Representative",
       location: "12 Basket Food Ltd",
     },
     {
-      period: "2024 – 2024",
-      role: "Secretary",
+      date: "2024 – 2024",
+      title: "Secretary",
       location: "Norland Nigeria Ltd",
     },
   ];
 
-  const services = fbServices.length > 0 ? fbServices : defaultServices;
-  const experiences = fbExperiences.length > 0 ? fbExperiences : defaultExperiences;
+  const skills = [
+    "Problem Solving",
+    "Data Entry",
+    "Scheduling",
+    "Communication",
+    "Remote Ops",
+  ];
 
   return (
     <div className="grid lg:grid-cols-[450px_1fr] gap-[1px] bg-editorial-border min-h-[calc(100vh-100px)]">
@@ -99,7 +91,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="section-title"
           >
-            {profile?.heroTitle || "Expert Virtual Assistance"}
+            Expert Virtual Assistance
           </motion.span>
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
@@ -108,7 +100,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-[42px] leading-[1.1] mb-5 text-navy font-serif"
           >
-            {profile?.heroSubtitle || "Reliable Remote Support for Growing Businesses"}
+            Reliable Remote Support for Growing Businesses
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -117,7 +109,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-[16px] leading-relaxed text-slate mb-[30px]"
           >
-            {profile?.heroDescription || "I provide expert Virtual Assistance and Customer Care to help you streamline operations, handle administrative tasks, and deliver exceptional customer experiences."}
+            I provide expert Virtual Assistance and Customer Care to help you streamline operations, handle administrative tasks, and deliver exceptional customer experiences.
           </motion.p>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -149,7 +141,7 @@ export default function Home() {
         >
           <span className="section-title">Professional Summary</span>
           <p className="text-[14px] leading-relaxed italic text-slate">
-            {profile?.professionalSummary || "Detail-oriented and reliable Remote Representative with hands-on experience supporting customers across retail, food service, and admin sectors."}
+            Detail-oriented and reliable Remote Representative with hands-on experience supporting customers across retail, food service, and admin sectors.
           </p>
         </motion.div>
       </motion.section>
@@ -228,11 +220,11 @@ export default function Home() {
           >
             <span className="section-title">Professional Timeline</span>
             <div className="space-y-6">
-              {experiences.map((exp: any, i: number) => (
-                <div key={exp.id || i} className="experience-item">
-                  <div className="font-serif italic text-[13px] text-slate">{exp.period}</div>
-                  <div className="font-bold text-[15px] my-1">{exp.role}</div>
-                  <div className="text-[12px] opacity-80">{exp.location || exp.company}</div>
+              {experiences.map((exp, i) => (
+                <div key={i} className="experience-item">
+                  <div className="font-serif italic text-[13px] text-slate">{exp.date}</div>
+                  <div className="font-bold text-[15px] my-1">{exp.title}</div>
+                  <div className="text-[12px] opacity-80">{exp.location}</div>
                 </div>
               ))}
             </div>
@@ -248,22 +240,16 @@ export default function Home() {
           >
             <span className="section-title">My Expertise</span>
             <div className="space-y-4">
-              {services.map((service: any, i: number) => {
-                const IconComponent = iconMap[service.icon] || CheckCircle2;
-                return (
-                  <motion.div 
-                    key={service.id || i} 
-                    whileHover={{ scale: 1.02 }}
-                    className="editorial-card"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <IconComponent className="w-5 h-5 text-navy" />
-                      <h3 className="text-[16px] font-serif">{service.title}</h3>
-                    </div>
-                    <p className="text-[13px] leading-relaxed text-slate">{service.description}</p>
-                  </motion.div>
-                );
-              })}
+              {services.map((service, i) => (
+                <motion.div 
+                  key={i} 
+                  whileHover={{ scale: 1.02 }}
+                  className="editorial-card"
+                >
+                  <h3 className="text-[16px] font-serif mb-2">{service.title}</h3>
+                  <p className="text-[13px] leading-relaxed text-slate">{service.description}</p>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
