@@ -1,0 +1,156 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // Primitives
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    function isSignedIn() { return request.auth != null; }
+    
+    function isBootstrappedAdmin() {
+      return isSignedIn() && request.auth.token.email == 'wisdomezekiel28@gmail.com';
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (isBootstrappedAdmin() || exists(/databases/$(database)/documents/admins/$(request.auth.uid)));
+    }
+
+    // Validations
+    function isValidAdmin(data) {
+      return data.keys().hasAll(['email', 'createdAt']) && 
+             data.keys().size() == 2 &&
+             data.email is string && data.email.size() <= 256 &&
+             data.createdAt == request.time;
+    }
+
+    function isValidProfileCreate(data) {
+      return data.keys().hasAll(['heroTitle', 'heroSubtitle', 'heroDescription', 'professionalSummary', 'detailedProfileSummary', 'updatedAt']) &&
+             data.keys().size() == 6 &&
+             data.heroTitle is string && data.heroTitle.size() <= 256 &&
+             data.heroSubtitle is string && data.heroSubtitle.size() <= 256 &&
+             data.heroDescription is string && data.heroDescription.size() <= 2000 &&
+             data.professionalSummary is string && data.professionalSummary.size() <= 2000 &&
+             data.detailedProfileSummary is string && data.detailedProfileSummary.size() <= 5000 &&
+             data.updatedAt == request.time;
+    }
+
+    function isValidProfileUpdate(data) {
+      return (data.heroTitle is string && data.heroTitle.size() <= 256) &&
+             (data.heroSubtitle is string && data.heroSubtitle.size() <= 256) &&
+             (data.heroDescription is string && data.heroDescription.size() <= 2000) &&
+             (data.professionalSummary is string && data.professionalSummary.size() <= 2000) &&
+             (data.detailedProfileSummary is string && data.detailedProfileSummary.size() <= 5000) &&
+             data.updatedAt == request.time;
+    }
+
+    function isValidServiceCreate(data) {
+        return data.keys().hasAll(['title', 'description', 'icon', 'updatedAt']) &&
+               data.keys().size() == 4 &&
+               data.title is string && data.title.size() <= 128 &&
+               data.description is string && data.description.size() <= 1000 &&
+               data.icon is string && data.icon.size() <= 100 &&
+               data.updatedAt == request.time;
+    }
+    
+    function isValidServiceUpdate(data) {
+        return (data.title is string && data.title.size() <= 128) &&
+               (data.description is string && data.description.size() <= 1000) &&
+               (data.icon is string && data.icon.size() <= 100) &&
+               data.updatedAt == request.time;
+    }
+
+    function isValidExperienceCreate(data) {
+        return data.keys().hasAll(['period', 'role', 'company', 'location', 'description', 'updatedAt']) &&
+               data.keys().size() == 6 &&
+               data.period is string && data.period.size() <= 100 &&
+               data.role is string && data.role.size() <= 128 &&
+               data.company is string && data.company.size() <= 128 &&
+               data.location is string && data.location.size() <= 128 &&
+               data.description is string && data.description.size() <= 2000 &&
+               data.updatedAt == request.time;
+    }
+    
+    function isValidExperienceUpdate(data) {
+        return (data.period is string && data.period.size() <= 100) &&
+               (data.role is string && data.role.size() <= 128) &&
+               (data.company is string && data.company.size() <= 128) &&
+               (data.location is string && data.location.size() <= 128) &&
+               (data.description is string && data.description.size() <= 2000) &&
+               data.updatedAt == request.time;
+    }
+
+    function isValidSkillCreate(data) {
+        return data.keys().hasAll(['name', 'updatedAt']) &&
+               data.keys().size() == 2 &&
+               data.name is string && data.name.size() <= 100 &&
+               data.updatedAt == request.time;
+    }
+
+    function isValidSkillUpdate(data) {
+        return (data.name is string && data.name.size() <= 100) &&
+               data.updatedAt == request.time;
+    }
+
+    // Admins Collection
+    match /admins/{adminId} {
+      allow read: if isAdmin();
+      allow create: if isBootstrappedAdmin() && isValidId(adminId) && isValidAdmin(incoming());
+      allow update: if false; // admins cannot be updated, only created/deleted
+      allow delete: if isBootstrappedAdmin() && isValidId(adminId);
+      allow list: if isAdmin();
+    }
+
+    // Settings Collection (Global Profile Data)
+    match /settings/{settingId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(settingId) && isValidProfileCreate(incoming());
+      allow update: if isAdmin() && isValidId(settingId) && isValidProfileUpdate(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['heroTitle', 'heroSubtitle', 'heroDescription', 'professionalSummary', 'detailedProfileSummary', 'updatedAt'])
+      );
+      allow delete: if isAdmin() && isValidId(settingId);
+    }
+
+    // Services Collection
+    match /services/{serviceId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(serviceId) && isValidServiceCreate(incoming());
+      allow update: if isAdmin() && isValidId(serviceId) && isValidServiceUpdate(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'icon', 'updatedAt'])
+      );
+      allow delete: if isAdmin() && isValidId(serviceId);
+    }
+
+    // Experiences Collection
+    match /experiences/{experienceId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(experienceId) && isValidExperienceCreate(incoming());
+      allow update: if isAdmin() && isValidId(experienceId) && isValidExperienceUpdate(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['period', 'role', 'company', 'location', 'description', 'updatedAt'])
+      );
+      allow delete: if isAdmin() && isValidId(experienceId);
+    }
+
+    // Skills Collection
+    match /skills/{skillId} {
+      allow read: if true;
+      allow create: if isAdmin() && isValidId(skillId) && isValidSkillCreate(incoming());
+      allow update: if isAdmin() && isValidId(skillId) && isValidSkillUpdate(incoming()) && (
+        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'updatedAt'])
+      );
+      allow delete: if isAdmin() && isValidId(skillId);
+    }
+  }
+}
