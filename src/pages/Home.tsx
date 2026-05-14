@@ -291,7 +291,7 @@ export default function Home() {
                       <img 
                         src={product.image} 
                         alt={product.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
                   )}
@@ -350,7 +350,7 @@ export default function Home() {
                           <img 
                             src={promo.image} 
                             alt={promo.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                            className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500 opacity-90"
                           />
                         </div>
                       )}
