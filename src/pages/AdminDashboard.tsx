@@ -466,14 +466,14 @@ export default function AdminDashboard() {
             <button
               key={item.id}
               onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }}
-              className={`w-full flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200 ${
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200 text-left ${
                 isActive 
                   ? 'bg-blue-600/20 text-blue-400 font-semibold shadow-inner' 
                   : 'text-slate-400 hover:text-white hover:bg-white/5 font-medium'
               }`}
             >
-              <Icon size={18} className={isActive ? "text-blue-400" : "text-slate-400"} />
-              <span>{item.label}</span>
+              <Icon size={18} className={`shrink-0 ${isActive ? "text-blue-400" : "text-slate-400"}`} />
+              <span className="truncate">{item.label}</span>
             </button>
           );
         })}
@@ -549,10 +549,10 @@ export default function AdminDashboard() {
               <NavLinks />
               <button 
                 onClick={handleLogout}
-                className="mt-4 flex flex-shrink-0 items-center gap-3 p-3 text-red-300 hover:text-red-100 transition-colors w-full rounded-lg hover:bg-white/5"
+                className="mt-4 flex flex-shrink-0 items-center justify-start gap-3 p-3 text-red-300 hover:text-red-100 transition-colors w-full rounded-lg hover:bg-white/5 text-left"
               >
-                <LogOut size={20} />
-                <span>Sign Out</span>
+                <LogOut size={20} className="shrink-0" />
+                <span className="truncate">Sign Out</span>
               </button>
             </motion.aside>
           </>
@@ -570,10 +570,10 @@ export default function AdminDashboard() {
 
         <button 
           onClick={handleLogout}
-          className="mt-4 mb-4 flex flex-shrink-0 items-center gap-3 p-3 text-red-300 hover:text-red-100 transition-colors w-full rounded-lg hover:bg-white/5"
+          className="mt-4 mb-4 flex flex-shrink-0 items-center justify-start gap-3 p-3 text-red-300 hover:text-red-100 transition-colors w-full rounded-lg hover:bg-white/5 text-left"
         >
-          <LogOut size={20} />
-          <span>Sign Out</span>
+          <LogOut size={20} className="shrink-0" />
+          <span className="truncate">Sign Out</span>
         </button>
       </aside>
 
