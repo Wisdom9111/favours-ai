@@ -106,7 +106,7 @@ export default function AdminDashboard() {
 
   const addService = async () => {
     try {
-      const id = "service-" + Date.now();
+      const newDocRef = doc(collection(db, "services"));
       const newService = {
         title: "New Service",
         description: "Describe your expertise here.",
@@ -114,7 +114,7 @@ export default function AdminDashboard() {
         icon: "Settings"
       };
       // For immediate feedback we could update local state, but onSnapshot will handle it.
-      await setDoc(doc(db, "services", id), newService);
+      await setDoc(newDocRef, newService);
     } catch (err) {
       handleFirestoreError(err, OperationType.WRITE, "services");
     }
@@ -143,7 +143,7 @@ export default function AdminDashboard() {
 
   const addExperience = async () => {
     try {
-      const id = "exp-" + Date.now();
+      const newDocRef = doc(collection(db, "experiences"));
       const newExp = {
         date: "2025 – Present",
         title: "New Role",
@@ -152,7 +152,7 @@ export default function AdminDashboard() {
         order: experiences.length,
         type: "work"
       };
-      await setDoc(doc(db, "experiences", id), newExp);
+      await setDoc(newDocRef, newExp);
     } catch (err) {
       handleFirestoreError(err, OperationType.WRITE, "experiences");
     }
@@ -196,7 +196,7 @@ export default function AdminDashboard() {
 
   const addProduct = async () => {
     try {
-      const id = "product-" + Date.now();
+      const newDocRef = doc(collection(db, "products"));
       const newProduct = {
         title: "New Product",
         description: "Product description...",
@@ -204,7 +204,7 @@ export default function AdminDashboard() {
         image: "",
         order: products.length
       };
-      await setDoc(doc(db, "products", id), newProduct);
+      await setDoc(newDocRef, newProduct);
     } catch (err) {
       handleFirestoreError(err, OperationType.WRITE, "products");
     }
