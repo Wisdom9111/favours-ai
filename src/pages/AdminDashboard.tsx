@@ -37,8 +37,14 @@ export default function AdminDashboard() {
   const [experiences, setExperiences] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [promos, setPromos] = useState<any[]>([]);
-  const [activeTab, setActiveTab] = useState("home");
+  const [activeTab, setActiveTab] = useState(() => {
+    return localStorage.getItem("adminActiveTab") || "home";
+  });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem("adminActiveTab", activeTab);
+  }, [activeTab]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -329,52 +335,40 @@ export default function AdminDashboard() {
 
   if (loading) return <div className="flex items-center justify-center min-h-screen font-serif">Authenticating...</div>;
 
-  const NavLinks = () => (
-    <nav className="flex-grow space-y-2 mt-6">
-      <button 
-        onClick={() => { setActiveTab("home"); setIsMobileMenuOpen(false); }}
-        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeTab === 'home' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
-      >
-        <Settings size={20} />
-        <span>Landing Page</span>
-      </button>
-      <button 
-        onClick={() => { setActiveTab("global"); setIsMobileMenuOpen(false); }}
-        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeTab === 'global' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
-      >
-        <LayoutDashboard size={20} />
-        <span>Site Identity</span>
-      </button>
-      <button 
-        onClick={() => { setActiveTab("services"); setIsMobileMenuOpen(false); }}
-        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeTab === 'services' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
-      >
-        <Briefcase size={20} />
-        <span>My Expertise</span>
-      </button>
-      <button 
-        onClick={() => { setActiveTab("experiences"); setIsMobileMenuOpen(false); }}
-        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeTab === 'experiences' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
-      >
-        <FileText size={20} />
-        <span>Professional Timeline</span>
-      </button>
-      <button 
-        onClick={() => { setActiveTab("products"); setIsMobileMenuOpen(false); }}
-        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeTab === 'products' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
-      >
-        <Package size={20} />
-        <span>Products</span>
-      </button>
-      <button 
-        onClick={() => { setActiveTab("promos"); setIsMobileMenuOpen(false); }}
-        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeTab === 'promos' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
-      >
-        <Tag size={20} />
-        <span>Promos</span>
-      </button>
-    </nav>
-  );
+  const NavLinks = () => {
+    const navItems = [
+      { id: "home", label: "Landing Page", icon: Settings },
+      { id: "global", label: "Site Identity", icon: LayoutDashboard },
+      { id: "services", label: "My Expertise", icon: Briefcase },
+      { id: "experiences", label: "Professional Timeline", icon: FileText },
+      { id: "products", label: "Products", icon: Package },
+      { id: "promos", label: "Promos", icon: Tag },
+    ];
+
+    return (
+      <nav className="flex-grow flex flex-col gap-1 mt-8">
+        <p className="px-4 text-[10px] font-bold uppercase tracking-wider text-white/40 mb-2">Primary Navigation</p>
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = activeTab === item.id;
+          return (
+            <button
+              key={item.id}
+              onClick={() => { setActiveTab(item.id); setIsMobileMenuOpen(false); }}
+              className={`w-full flex items-center gap-3 px-4 py-3 text-sm rounded-xl transition-all duration-200 ${
+                isActive 
+                  ? 'bg-blue-600/20 text-blue-400 font-semibold shadow-inner' 
+                  : 'text-slate-400 hover:text-white hover:bg-white/5 font-medium'
+              }`}
+            >
+              <Icon size={18} className={isActive ? "text-blue-400" : "text-slate-400"} />
+              <span>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row relative">
