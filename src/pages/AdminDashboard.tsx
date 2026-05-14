@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "motion/react";
-import { Trash2, Plus, Save, LogOut, LayoutDashboard, Briefcase, Settings, Menu, X, FileText, Package, Copy, Tag, MessageSquare } from "lucide-react";
+import { Trash2, Plus, Save, LogOut, LayoutDashboard, Briefcase, Settings, Menu, X, FileText, Package, Copy, Tag, MessageSquare, Sun, Moon } from "lucide-react";
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -368,8 +368,18 @@ export default function AdminDashboard() {
     }
   };
 
-  const overrideTheme = async (mode: 'light' | 'dark') => {
+  const overrideTheme = async (mode: 'light' | 'dark' | 'auto') => {
     try {
+      if (mode === 'auto') {
+        // Just delete the explicit setting or set it to auto, setting it to auto gives visual feedback in DB.
+        await setDoc(doc(db, "settings", "theme"), {
+          mode: "auto",
+          timestamp: new Date().getTime()
+        });
+        alert(`Theme set back to Auto (based on time).`);
+        return;
+      }
+
       await setDoc(doc(db, "settings", "theme"), {
         mode,
         timestamp: new Date().getTime()
@@ -448,12 +458,37 @@ export default function AdminDashboard() {
             </button>
           );
         })}
+
+        <div className="mt-8 px-4">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-white/40 mb-2">Global Theme Settings</p>
+          <div className="flex bg-navy rounded-lg p-1 gap-1 border border-white/10 overflow-hidden">
+            <button 
+              onClick={() => overrideTheme('light')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs transition-all ${currentThemeSetting?.mode === 'light' ? 'bg-white text-navy font-bold' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+            >
+              <Sun size={14} /> Light
+            </button>
+            <button 
+              onClick={() => overrideTheme('auto')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs transition-all ${!currentThemeSetting || currentThemeSetting?.mode === 'auto' ? 'bg-slate-700 text-white font-bold' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+            >
+              Auto
+            </button>
+            <button 
+              onClick={() => overrideTheme('dark')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs transition-all ${currentThemeSetting?.mode === 'dark' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:text-white hover:bg-white/5'}`}
+            >
+              <Moon size={14} /> Dark
+            </button>
+          </div>
+          <p className="text-[9px] text-white/30 mt-2 text-center">Auto switches at 4PM/7AM</p>
+        </div>
       </nav>
     );
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row relative">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex flex-col md:flex-row relative">
       {/* Mobile Header */}
       <div className="md:hidden bg-navy text-white p-4 flex justify-between items-center sticky top-0 z-20">
         <div className="flex items-center gap-3">
@@ -526,7 +561,7 @@ export default function AdminDashboard() {
       <main className="flex-grow p-4 md:p-8 max-w-5xl mx-auto w-full overflow-x-hidden min-h-screen">
         <Tabs value={activeTab} className="space-y-6">
           <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-4">
-            <h2 className="text-2xl font-serif text-navy capitalize hidden md:block">
+            <h2 className="text-2xl font-serif text-navy dark:text-white capitalize hidden md:block">
               {activeTab === 'home' && 'Landing Page'}
               {activeTab === 'global' && 'Site Identity'}
               {activeTab === 'services' && 'My Expertise'}
@@ -691,9 +726,16 @@ export default function AdminDashboard() {
                     Force Light Mode
                   </Button>
                   <Button 
+                    variant={!currentThemeSetting || currentThemeSetting?.mode === "auto" ? "default" : "outline"}
+                    onClick={() => overrideTheme("auto")}
+                    className={`w-full ${(!currentThemeSetting || currentThemeSetting?.mode === 'auto') ? 'bg-slate-700 hover:bg-slate-800 text-white' : ''}`}
+                  >
+                    Auto (Time-based)
+                  </Button>
+                  <Button 
                     variant={currentThemeSetting?.mode === "dark" ? "default" : "outline"}
                     onClick={() => overrideTheme("dark")}
-                    className="w-full bg-slate-900 text-white hover:bg-slate-800"
+                    className={`w-full ${currentThemeSetting?.mode === 'dark' ? 'bg-slate-900 border-slate-900 text-white hover:bg-slate-800' : ''}`}
                   >
                     Force Dark Mode
                   </Button>

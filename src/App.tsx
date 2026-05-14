@@ -38,7 +38,7 @@ export default function App() {
       const now = new Date();
       const mostRecentTransition = getMostRecentTransition(now);
       
-      if (currentData && currentData.timestamp > mostRecentTransition) {
+      if (currentData && currentData.mode !== 'auto' && currentData.timestamp > mostRecentTransition) {
         // Admin override applies
         isDark = currentData.mode === "dark";
       } else {

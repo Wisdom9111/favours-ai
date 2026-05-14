@@ -152,7 +152,7 @@
 }
 
 .dark {
-    --background: oklch(0.145 0 0);
+    --background: oklch(0.145 0 0); /* Navy equivalent */
     --foreground: oklch(0.985 0 0);
     --card: oklch(0.205 0 0);
     --card-foreground: oklch(0.985 0 0);
@@ -186,6 +186,14 @@
 }
 
 @layer base {
+  .dark .bg-white { @apply bg-navy border-slate-800; }
+  .dark .text-navy { @apply text-white; }
+  .dark .bg-navy { @apply bg-slate-200 text-navy; }
+  .dark .border-editorial-border { @apply border-slate-700/50; }
+  .dark .bg-slate-50 { @apply bg-slate-900; }
+  .dark .text-slate { @apply text-slate-300; }
+  .dark .bg-light-gray { @apply bg-navy; }
+  
   * {
     @apply border-border outline-ring/50;
     }
