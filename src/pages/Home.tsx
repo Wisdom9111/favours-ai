@@ -269,74 +269,6 @@ export default function Home() {
           </p>
         </motion.div>
 
-        {/* Promos Section */}
-        {promos.filter(p => new Date(p.endDate).getTime() > new Date().getTime()).length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.45 }}
-            className="mt-12"
-          >
-            <span className="section-title text-red-600">Active Promos</span>
-            <div className="grid grid-cols-1 gap-5 mt-4">
-              {promos.filter(p => new Date(p.endDate).getTime() > new Date().getTime()).map((promo) => {
-                const product = products.find(prod => prod.id === promo.productId);
-                const originalPriceStr = product ? product.price : null;
-                const originalPriceNum = originalPriceStr ? parseFloat(originalPriceStr.replace(/[^0-9.]/g, '')) : 0;
-                const promoPriceNum = parseFloat(promo.promoPrice?.replace(/[^0-9.]/g, '') || '0');
-                const percentOff = originalPriceNum > 0 ? Math.round(((originalPriceNum - promoPriceNum) / originalPriceNum) * 100) : 0;
-                
-                return (
-                  <motion.div 
-                    key={promo.id}
-                    whileHover={{ y: -5 }}
-                    className="bg-red-50 border border-red-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col group relative"
-                  >
-                    {percentOff > 0 && (
-                      <div className="absolute top-2 right-2 bg-red-600 text-white font-bold px-2 py-1 rounded text-xs z-10">
-                        {percentOff}% OFF
-                      </div>
-                    )}
-                    {promo.image && (
-                      <div className="h-40 w-full overflow-hidden bg-slate-50 relative border-b border-red-200">
-                        <img 
-                          src={promo.image} 
-                          alt={promo.title}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
-                        />
-                      </div>
-                    )}
-                    <div className="p-5 flex flex-col flex-grow">
-                      <div className="flex justify-between items-start mb-2 gap-3">
-                        <h3 className="text-lg font-serif text-red-900 leading-tight">{promo.title}</h3>
-                        <div className="flex flex-col items-end">
-                          <span className="text-xs font-bold text-red-600 whitespace-nowrap bg-red-100 px-2 py-1 rounded-full">{promo.promoPrice}</span>
-                          {originalPriceStr && (
-                            <span className="text-[10px] text-slate-400 line-through mt-1">{originalPriceStr}</span>
-                          )}
-                        </div>
-                      </div>
-                      <p className="text-[13px] text-red-800/80 leading-relaxed mb-4 flex-grow">{promo.description}</p>
-                      
-                      <div className="mb-4">
-                        <div className="text-[10px] uppercase font-bold text-red-800/60 mb-1">Ends In:</div>
-                        <Countdown endDate={promo.endDate} />
-                      </div>
-                      
-                      <HireMeModal>
-                        <Button className="w-full bg-red-600 hover:bg-red-700 text-white mt-auto rounded-lg text-sm h-9">
-                          Claim Offer
-                        </Button>
-                      </HireMeModal>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
-
         {/* Products Section */}
         {products.length > 0 && (
           <motion.div
@@ -380,6 +312,83 @@ export default function Home() {
             </div>
           </motion.div>
         )}
+
+        {/* Promos Section */}
+        {(() => {
+          const activePromos = promos.filter(p => 
+            new Date(p.endDate).getTime() > new Date().getTime() &&
+            products.some(prod => prod.id === p.productId)
+          );
+
+          if (activePromos.length === 0) return null;
+
+          return (
+            <motion.div
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.55 }}
+              className="mt-12"
+            >
+              <span className="section-title text-red-600">Active Promos</span>
+              <div className="grid grid-cols-1 gap-5 mt-4">
+                {activePromos.map((promo) => {
+                  const product = products.find(prod => prod.id === promo.productId);
+                  const originalPriceStr = product ? product.price : null;
+                  const originalPriceNum = originalPriceStr ? parseFloat(originalPriceStr.replace(/[^0-9.]/g, '')) : 0;
+                  const promoPriceNum = parseFloat(promo.promoPrice?.replace(/[^0-9.]/g, '') || '0');
+                  const percentOff = originalPriceNum > 0 ? Math.round(((originalPriceNum - promoPriceNum) / originalPriceNum) * 100) : 0;
+                  
+                  return (
+                    <motion.div 
+                      key={promo.id}
+                      whileHover={{ y: -5 }}
+                      className="bg-red-50 border border-red-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col group relative"
+                    >
+                      {promo.image && (
+                        <div className="h-40 w-full overflow-hidden bg-slate-50 relative border-b border-red-200">
+                          <img 
+                            src={promo.image} 
+                            alt={promo.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                          />
+                        </div>
+                      )}
+                      <div className="p-5 flex flex-col flex-grow">
+                        <div className="flex justify-between items-start mb-2 gap-3">
+                          <h3 className="text-lg font-serif text-red-900 leading-tight">{promo.title}</h3>
+                          <div className="flex flex-col items-end">
+                            <div className="flex items-center gap-2">
+                              {percentOff > 0 && (
+                                <span className="bg-red-600 text-white font-bold px-1.5 py-0.5 rounded text-[10px]">{percentOff}% OFF</span>
+                              )}
+                              <span className="text-xs font-bold text-red-600 whitespace-nowrap bg-red-100 px-2 py-1 rounded-full">{promo.promoPrice}</span>
+                            </div>
+                            {originalPriceStr && (
+                              <span className="text-[10px] text-slate-400 line-through mt-1">{originalPriceStr}</span>
+                            )}
+                          </div>
+                        </div>
+                        <p className="text-[13px] text-red-800/80 leading-relaxed mb-4 flex-grow">{promo.description}</p>
+                        
+                        <div className="mb-4">
+                          <div className="text-[10px] uppercase font-bold text-red-800/60 mb-1">Ends In:</div>
+                          <Countdown endDate={promo.endDate} />
+                        </div>
+                        
+                        <HireMeModal>
+                          <Button className="w-full bg-red-600 hover:bg-red-700 text-white mt-auto rounded-lg text-sm h-9">
+                            Claim Offer
+                          </Button>
+                        </HireMeModal>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </motion.div>
+          );
+        })()}
 
         <motion.div 
           initial={{ opacity: 0 }}
