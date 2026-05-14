@@ -108,7 +108,9 @@ export default function Home() {
     skills: ["Problem Solving", "Data Entry", "Scheduling", "Communication", "Remote Ops"],
     badgeTitle: "Top-Rated Virtual Assistant",
     badgeSubtitle: "100% Remote Efficiency | Multi-Channel Support Expert",
-    badgeVerifiedText: "Verified Excellence"
+    badgeVerifiedText: "Verified Excellence",
+    profileImage: "/Profile.png",
+    heroBadgeImage: "/Logo2.png"
   });
 
   const [products, setProducts] = useState<any[]>([]);
@@ -145,13 +147,16 @@ export default function Home() {
       if (snap.exists()) {
         const data = snap.data();
         setDynamicContent({
+          ...dynamicContent,
           heroTitle: data.heroTitle || dynamicContent.heroTitle,
           heroDescription: data.heroDescription || dynamicContent.heroDescription,
           professionalSummary: data.professionalSummary || dynamicContent.professionalSummary,
           skills: data.skills ? data.skills.split(",").map((s: string) => s.trim()) : dynamicContent.skills,
           badgeTitle: data.badgeTitle || dynamicContent.badgeTitle,
           badgeSubtitle: data.badgeSubtitle || dynamicContent.badgeSubtitle,
-          badgeVerifiedText: data.badgeVerifiedText || dynamicContent.badgeVerifiedText
+          badgeVerifiedText: data.badgeVerifiedText || dynamicContent.badgeVerifiedText,
+          profileImage: data.profileImage || dynamicContent.profileImage,
+          heroBadgeImage: data.heroBadgeImage || dynamicContent.heroBadgeImage
         });
       }
     });
@@ -230,7 +235,7 @@ export default function Home() {
             className="flex justify-center mb-10"
           >
             <img 
-              src="/Profile.png" 
+              src={dynamicContent.profileImage || "/Profile.png"} 
               alt="Ejindu Favour Blessing" 
               style={{ 
                 width: '250px', 
@@ -496,7 +501,7 @@ export default function Home() {
         {/* Hero Badge Area */}
         <div 
           className="relative h-[600px] w-full overflow-hidden border-b border-editorial-border p-10 flex items-center justify-center bg-center bg-cover bg-no-repeat bg-navy"
-          style={{ backgroundImage: 'url("/Logo2.png")' }}
+          style={{ backgroundImage: `url("${dynamicContent.heroBadgeImage || "/Logo2.png"}")` }}
         >
           <div className="absolute inset-0 bg-black/30 z-0" /> {/* Light overlay to ensure text is readable over the image */}
           

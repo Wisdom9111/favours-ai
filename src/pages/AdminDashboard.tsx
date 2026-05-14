@@ -31,7 +31,9 @@ export default function AdminDashboard() {
     badgeTitle: "Top-Rated Virtual Assistant",
     badgeSubtitle: "100% Remote Efficiency | Multi-Channel Support Expert",
     badgeVerifiedText: "Verified Excellence",
-    aboutQuote: "With a solid foundation in Computer Science and a passion for exceptional service, I bridge the gap between technical efficiency and human-centric support."
+    aboutQuote: "With a solid foundation in Computer Science and a passion for exceptional service, I bridge the gap between technical efficiency and human-centric support.",
+    profileImage: "/Profile.png",
+    heroBadgeImage: "/Logo2.png"
   });
   const [services, setServices] = useState<any[]>([]);
   const [experiences, setExperiences] = useState<any[]>([]);
@@ -209,6 +211,21 @@ export default function AdminDashboard() {
       alert("Experience saved successfully!");
     } catch (err) {
       handleFirestoreError(err, OperationType.WRITE, `experiences/${id}`);
+    }
+  };
+
+  const handleHomeImageUpload = (field: "profileImage" | "heroBadgeImage", e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 1048576) {
+        alert("File is too large! Please select an image under 1MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setHomeContent(prev => ({ ...prev, [field]: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -703,6 +720,63 @@ export default function AdminDashboard() {
                     onChange={e => setHomeContent({...homeContent, tools: e.target.value})}
                     placeholder="Tool 1, Tool 2, Tool 3..."
                   />
+                </div>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2 border border-slate-200 dark:border-[#1E2741] p-4 rounded-lg">
+                    <label className="text-xs font-bold uppercase text-slate">Profile Image</label>
+                    {homeContent.profileImage && (
+                      <div className="aspect-square bg-slate-100 dark:bg-black/20 rounded-lg overflow-hidden mb-2 relative group w-24 h-24 mx-auto">
+                        <img src={homeContent.profileImage} alt="Profile" className="w-full h-full object-cover" />
+                        <button 
+                          onClick={() => setHomeContent({...homeContent, profileImage: ""})}
+                          className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    )}
+                    <Input 
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleHomeImageUpload("profileImage", e)}
+                      className="text-xs cursor-pointer"
+                    />
+                    <div className="text-[10px] text-slate/60 text-center">Or enter URL:</div>
+                    <Input 
+                      placeholder="https://..." 
+                      value={homeContent.profileImage || ""} 
+                      onChange={e => setHomeContent({...homeContent, profileImage: e.target.value})}
+                      className="text-xs"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2 border border-slate-200 dark:border-[#1E2741] p-4 rounded-lg">
+                    <label className="text-xs font-bold uppercase text-slate">Hero Background Image</label>
+                    {homeContent.heroBadgeImage && (
+                      <div className="aspect-square bg-slate-100 dark:bg-black/20 rounded-lg overflow-hidden mb-2 relative group w-24 h-24 mx-auto">
+                        <img src={homeContent.heroBadgeImage} alt="Hero Badge" className="w-full h-full object-cover" />
+                        <button 
+                          onClick={() => setHomeContent({...homeContent, heroBadgeImage: ""})}
+                          className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    )}
+                    <Input 
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleHomeImageUpload("heroBadgeImage", e)}
+                      className="text-xs cursor-pointer"
+                    />
+                    <div className="text-[10px] text-slate/60 text-center">Or enter URL:</div>
+                    <Input 
+                      placeholder="https://..." 
+                      value={homeContent.heroBadgeImage || ""} 
+                      onChange={e => setHomeContent({...homeContent, heroBadgeImage: e.target.value})}
+                      className="text-xs"
+                    />
+                  </div>
                 </div>
                 <Button onClick={saveHomeContent} className="bg-navy hover:bg-slate gap-2">
                   <Save size={16} /> Save Identity Settings
