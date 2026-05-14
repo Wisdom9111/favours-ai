@@ -1,6 +1,6 @@
 {
-  "name": "Ejindu Favour Blessing Portfolio",
+  "name": "Favour Creatives",
   "description": "Professional 2-page personal portfolio for a Remote Customer Care Representative & Virtual Assistant.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
