@@ -324,6 +324,7 @@ export default function AdminDashboard() {
         title: "Client Testimonial",
         description: "Excellent service!",
         image: "",
+        rating: 5,
         order: testimonials.length
       };
       await setDoc(newDocRef, newTesti);
@@ -1212,14 +1213,27 @@ export default function AdminDashboard() {
                           />
                         </div>
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-4">
-                          <div className="flex items-center gap-2">
-                            <label className="text-[10px] uppercase font-bold text-slate">Order</label>
-                            <Input 
-                              type="number" 
-                              className="w-20" 
-                              value={testi.order} 
-                              onChange={e => updateTestimonialLocal(testi.id, "order", parseInt(e.target.value))}
-                            />
+                          <div className="flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                              <label className="text-[10px] uppercase font-bold text-slate">Order</label>
+                              <Input 
+                                type="number" 
+                                className="w-20" 
+                                value={testi.order} 
+                                onChange={e => updateTestimonialLocal(testi.id, "order", parseInt(e.target.value))}
+                              />
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <label className="text-[10px] uppercase font-bold text-slate">Rating (1-5)</label>
+                              <Input 
+                                type="number" 
+                                className="w-20" 
+                                min={1}
+                                max={5}
+                                value={testi.rating || 5} 
+                                onChange={e => updateTestimonialLocal(testi.id, "rating", parseInt(e.target.value) || 5)}
+                              />
+                            </div>
                           </div>
                           <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                             <Button 

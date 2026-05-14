@@ -452,8 +452,15 @@ export default function Home() {
                     )}
                     <div>
                       <h4 className="font-bold text-navy text-sm leading-tight">{testi.title}</h4>
-                      <div className="flex text-yellow-500 gap-0.5 mt-1">
-                        {[...Array(5)].map((_, i) => <Star key={i} size={12} fill="currentColor" />)}
+                      <div className="flex gap-0.5 mt-1">
+                        {[...Array(5)].map((_, i) => (
+                          <Star 
+                            key={i} 
+                            size={12} 
+                            className={i < (testi.rating || 5) ? "text-yellow-500" : "text-slate-300"} 
+                            fill="currentColor" 
+                          />
+                        ))}
                       </div>
                     </div>
                   </div>

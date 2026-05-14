@@ -94,6 +94,7 @@
         "title": { "type": "string" },
         "description": { "type": "string" },
         "image": { "type": "string" },
+        "rating": { "type": "number" },
         "order": { "type": "number" }
       },
       "required": ["title", "description"]
