@@ -34,26 +34,62 @@
     --ring: 216 42% 18%;
     --radius: 0px; /* Editorial style often uses sharp corners */
   }
-}
 
-@layer base {
-  * {
-    @apply border-editorial-border;
+  .dark {
+    --background: 216 42% 18%; /* navy */
+    --foreground: 210 40% 99%; /* light gray */
+    --card: 216 50% 12%; 
+    --card-foreground: 210 40% 99%;
+    --popover: 216 50% 12%;
+    --popover-foreground: 210 40% 99%;
+    --primary: 210 40% 99%;
+    --primary-foreground: 216 42% 18%;
+    --secondary: 215 16% 55%; 
+    --secondary-foreground: 210 40% 98%;
+    --muted: 215 16% 35%;
+    --muted-foreground: 210 40% 80%;
+    --accent: 215 16% 35%;
+    --accent-foreground: 210 40% 99%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 216 42% 80% / 0.1;
+    --input: 216 42% 80% / 0.1;
+    --ring: 210 40% 99%;
   }
+
+  * {
+    @apply border-border outline-ring/50;
+  }
+  
   body {
     @apply bg-light-gray text-navy font-sans antialiased;
   }
+  
+  .dark body {
+    @apply bg-background text-white;
+  }
+
   h1, h2, h3, h4, h5, h6 {
     @apply font-serif font-bold;
+  }
+  
+  html {
+    @apply font-sans scroll-smooth;
   }
 }
 
 .section-title {
   @apply font-serif text-[11px] uppercase tracking-[2px] text-slate mb-5 border-b border-editorial-border pb-2 block;
 }
+.dark .section-title {
+  @apply text-slate-300 border-slate-700;
+}
 
 .editorial-card {
   @apply border border-editorial-border p-5 bg-white transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+}
+.dark .editorial-card {
+  @apply bg-navy border-slate-700 text-white;
 }
 
 .editorial-btn {
@@ -63,10 +99,17 @@
 .editorial-btn-primary {
   @apply bg-navy text-white hover:opacity-90;
 }
+.dark .editorial-btn-primary {
+  @apply bg-white text-navy hover:bg-slate-200;
+}
 
 .editorial-btn-secondary {
   @apply bg-transparent border border-navy text-navy hover:bg-navy/5;
 }
+.dark .editorial-btn-secondary {
+  @apply border-white text-white hover:bg-white/10;
+}
+
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 @import "@fontsource-variable/geist";
@@ -116,91 +159,37 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 }
 
-:root {
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.145 0 0);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.145 0 0);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
-    --primary-foreground: oklch(0.985 0 0);
-    --secondary: oklch(0.97 0 0);
-    --secondary-foreground: oklch(0.205 0 0);
-    --muted: oklch(0.97 0 0);
-    --muted-foreground: oklch(0.556 0 0);
-    --accent: oklch(0.97 0 0);
-    --accent-foreground: oklch(0.205 0 0);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.922 0 0);
-    --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --radius: 0.625rem;
-    --sidebar: oklch(0.985 0 0);
-    --sidebar-foreground: oklch(0.145 0 0);
-    --sidebar-primary: oklch(0.205 0 0);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.97 0 0);
-    --sidebar-accent-foreground: oklch(0.205 0 0);
-    --sidebar-border: oklch(0.922 0 0);
-    --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-    --background: oklch(0.145 0 0); /* Navy equivalent */
-    --foreground: oklch(0.985 0 0);
-    --card: oklch(0.205 0 0);
-    --card-foreground: oklch(0.985 0 0);
-    --popover: oklch(0.205 0 0);
-    --popover-foreground: oklch(0.985 0 0);
-    --primary: oklch(0.922 0 0);
-    --primary-foreground: oklch(0.205 0 0);
-    --secondary: oklch(0.269 0 0);
-    --secondary-foreground: oklch(0.985 0 0);
-    --muted: oklch(0.269 0 0);
-    --muted-foreground: oklch(0.708 0 0);
-    --accent: oklch(0.269 0 0);
-    --accent-foreground: oklch(0.985 0 0);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.556 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
-    --sidebar: oklch(0.205 0 0);
-    --sidebar-foreground: oklch(0.985 0 0);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.985 0 0);
-    --sidebar-accent: oklch(0.269 0 0);
-    --sidebar-accent-foreground: oklch(0.985 0 0);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.556 0 0);
-}
-
-@layer base {
-  .dark .bg-white { @apply bg-navy border-slate-800; }
-  .dark .text-navy { @apply text-white; }
-  .dark .bg-navy { @apply bg-slate-200 text-navy; }
-  .dark .border-editorial-border { @apply border-slate-700/50; }
-  .dark .bg-slate-50 { @apply bg-slate-900; }
-  .dark .text-slate { @apply text-slate-300; }
-  .dark .bg-light-gray { @apply bg-navy; }
+/* Explicit dark mode overrides for utility classes used in the code */
+@layer utilities {
+  .dark .bg-white { @apply !bg-navy !border-slate-800 !text-white; }
+  .dark .text-navy { @apply !text-white; }
+  .dark .bg-navy { @apply !bg-slate-200 !text-navy; }
+  .dark .border-editorial-border { @apply !border-slate-700/50; }
+  .dark .bg-slate-50 { @apply !bg-slate-900 !border-slate-800 !text-slate-300; }
+  .dark .bg-slate-100 { @apply !bg-slate-800 !text-white; }
+  .dark .text-slate { @apply !text-slate-300; }
+  .dark .bg-light-gray { @apply !bg-slate-900; }
+  .dark .text-slate-700 { @apply !text-slate-300; }
+  .dark .text-slate-400 { @apply !text-slate-400; }
   
-  * {
-    @apply border-border outline-ring/50;
-    }
-  body {
-    @apply bg-background text-foreground;
-    }
-  html {
-    @apply font-sans scroll-smooth;
-    }
+  /* Promos dark mode */
+  .dark .bg-red-50 { @apply !bg-red-950/20 !border-red-900/40; }
+  .dark .text-red-900 { @apply !text-red-100; }
+  .dark .text-red-800 { @apply !text-red-200; }
+  .dark .bg-red-100 { @apply !bg-red-900/40 !text-red-200; }
+  .dark .border-red-200 { @apply !border-red-900/40; }
+  .dark .text-red-800\/80 { @apply !text-red-200/80; }
+  .dark .text-red-800\/60 { @apply !text-red-200/60; }
+  
+  /* Testimonials dark mode */
+  .dark .bg-blue-50\/50 { @apply !bg-blue-950/30 !border-blue-900/50; }
+  .dark .bg-blue-200 { @apply !bg-blue-900/60 !text-blue-100; }
+  .dark .text-blue-600 { @apply !text-blue-400; }
+  .dark .border-blue-100 { @apply !border-blue-900/50; }
+  .dark .border-blue-200 { @apply !border-blue-800/50; }
+  .dark .text-blue-200\/50 { @apply !text-blue-800/50; }
+  
+  /* Admin Sidebar overrides */
+  .dark .bg-navy\/5 { @apply !bg-white/10; }
+  .dark .hover\:bg-white\/5:hover { @apply !bg-white/10; }
 }
