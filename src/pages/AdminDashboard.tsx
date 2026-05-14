@@ -76,7 +76,8 @@ export default function AdminDashboard() {
     const homeDoc = doc(db, "pageContent", "home");
     getDoc(homeDoc).then((snap) => {
       if (snap.exists()) {
-        setHomeContent(snap.data() as any);
+        const d = snap.data();
+        setHomeContent(prev => ({ ...prev, ...d }));
       }
     });
 
@@ -439,7 +440,7 @@ export default function AdminDashboard() {
     ];
 
     return (
-      <nav className="flex flex-col gap-1 mt-6 mb-8">
+      <nav className="flex-1 overflow-y-auto flex flex-col gap-1 mt-6 mb-4 pr-2 pb-4 scrollbar-thin">
         <p className="px-4 text-[10px] font-bold uppercase tracking-wider text-white/40 mb-2">Primary Navigation</p>
         {navItems.map((item) => {
           const Icon = item.icon;
@@ -489,9 +490,9 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 flex flex-col md:flex-row relative transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#06080F] flex flex-col md:flex-row relative transition-colors duration-300">
       {/* Mobile Header */}
-      <div className="md:hidden bg-navy dark:bg-zinc-900 text-white p-4 flex justify-between items-center sticky top-0 z-20 border-b dark:border-zinc-800">
+      <div className="md:hidden bg-navy dark:bg-[#0F1423] text-white p-4 flex justify-between items-center sticky top-0 z-20 border-b dark:border-[#1E2741]">
         <div className="flex items-center gap-3">
           <button onClick={() => setIsMobileMenuOpen(true)} className="text-white focus:outline-none">
             <Menu size={24} />
@@ -517,9 +518,9 @@ export default function AdminDashboard() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "tween", duration: 0.3 }}
-              className="fixed inset-y-0 left-0 w-64 bg-navy text-white p-6 flex flex-col z-50 md:hidden shadow-xl"
+              className="fixed inset-y-0 left-0 w-64 bg-navy dark:bg-[#0F1423] text-white p-6 flex flex-col z-50 md:hidden shadow-xl border-r dark:border-[#1E2741] transition-colors duration-300"
             >
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center justify-between mb-8 flex-shrink-0">
                 <div>
                   <h1 className="text-xl font-serif font-bold">Admin</h1>
                   <p className="text-xs text-white/60 mt-1 truncate">{user?.email}</p>
@@ -531,7 +532,7 @@ export default function AdminDashboard() {
               <NavLinks />
               <button 
                 onClick={handleLogout}
-                className="mt-4 flex items-center gap-3 p-3 text-red-300 hover:text-red-100 transition-colors w-full rounded-lg hover:bg-white/5"
+                className="mt-4 flex flex-shrink-0 items-center gap-3 p-3 text-red-300 hover:text-red-100 transition-colors w-full rounded-lg hover:bg-white/5"
               >
                 <LogOut size={20} />
                 <span>Sign Out</span>
@@ -542,8 +543,8 @@ export default function AdminDashboard() {
       </AnimatePresence>
 
       {/* Desktop Sidebar */}
-      <aside className="w-64 bg-navy dark:bg-zinc-900 border-r dark:border-zinc-800 text-white p-6 hidden md:flex flex-col sticky top-0 h-screen overflow-y-auto transition-colors duration-300">
-        <div className="mb-6">
+      <aside className="w-64 bg-navy dark:bg-[#0F1423] border-r dark:border-[#1E2741] text-white p-6 hidden md:flex flex-col sticky top-0 h-screen transition-colors duration-300">
+        <div className="mb-6 flex-shrink-0">
           <h1 className="text-xl font-serif font-bold whitespace-nowrap overflow-hidden text-ellipsis">Admin Dashboard</h1>
           <p className="text-xs text-white/60 mt-1 break-all">{user?.email}</p>
         </div>
@@ -552,7 +553,7 @@ export default function AdminDashboard() {
 
         <button 
           onClick={handleLogout}
-          className="mt-4 mb-4 flex items-center gap-3 p-3 text-red-300 hover:text-red-100 transition-colors w-full rounded-lg hover:bg-white/5"
+          className="mt-4 mb-4 flex flex-shrink-0 items-center gap-3 p-3 text-red-300 hover:text-red-100 transition-colors w-full rounded-lg hover:bg-white/5"
         >
           <LogOut size={20} />
           <span>Sign Out</span>
@@ -581,7 +582,7 @@ export default function AdminDashboard() {
           </div>
 
           <TabsContent value="home">
-            <Card className="dark:!bg-zinc-900 dark:!border-zinc-800 transition-colors duration-300">
+            <Card className="dark:!bg-[#0F1423] dark:!border-[#1E2741] transition-colors duration-300">
               <CardHeader>
                 <CardTitle className="font-serif">Page Text & Highlights</CardTitle>
               </CardHeader>
@@ -657,7 +658,7 @@ export default function AdminDashboard() {
           </TabsContent>
 
           <TabsContent value="global">
-            <Card className="dark:!bg-zinc-900 dark:!border-zinc-800 transition-colors duration-300">
+            <Card className="dark:!bg-[#0F1423] dark:!border-[#1E2741] transition-colors duration-300">
               <CardHeader>
                 <CardTitle className="font-serif">Site Identity & Contact</CardTitle>
               </CardHeader>
@@ -709,7 +710,7 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
 
-            <Card className="mt-6 dark:!bg-zinc-900 dark:!border-zinc-800 transition-colors duration-300">
+            <Card className="mt-6 dark:!bg-[#0F1423] dark:!border-[#1E2741] transition-colors duration-300">
               <CardHeader>
                 <CardTitle className="font-serif">Global Theme Override</CardTitle>
                 <p className="text-sm text-slate">
@@ -754,7 +755,7 @@ export default function AdminDashboard() {
             </div>
             <div className="grid gap-4">
               {services.map(service => (
-                <Card key={service.id} className="border-editorial-border dark:!bg-zinc-900 dark:!border-zinc-800 transition-colors duration-300">
+                <Card key={service.id} className="border-editorial-border dark:!bg-[#0F1423] dark:!border-[#1E2741] transition-colors duration-300">
                   <CardContent className="p-6 grid gap-4">
                     <div className="space-y-2">
                       <label className="text-[10px] uppercase font-bold text-slate">Service Title</label>
@@ -819,7 +820,7 @@ export default function AdminDashboard() {
             </div>
             <div className="grid gap-4">
               {experiences.map(exp => (
-                <Card key={exp.id} className="border-editorial-border dark:!bg-zinc-900 dark:!border-zinc-800 transition-colors duration-300">
+                <Card key={exp.id} className="border-editorial-border dark:!bg-[#0F1423] dark:!border-[#1E2741] transition-colors duration-300">
                   <CardContent className="p-6 grid gap-4">
                     <div className="grid md:grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -906,7 +907,7 @@ export default function AdminDashboard() {
             </div>
             <div className="grid gap-4">
               {products.map(product => (
-                <Card key={product.id} className="border-editorial-border dark:!bg-zinc-900 dark:!border-zinc-800 transition-colors duration-300">
+                <Card key={product.id} className="border-editorial-border dark:!bg-[#0F1423] dark:!border-[#1E2741] transition-colors duration-300">
                   <CardContent className="p-6 grid gap-4">
                     <div className="flex flex-col md:flex-row gap-6">
                       {/* Image section */}
@@ -1030,7 +1031,7 @@ export default function AdminDashboard() {
             </div>
             <div className="grid gap-4">
               {promos.map(promo => (
-                <Card key={promo.id} className="border-editorial-border dark:!bg-zinc-900 dark:!border-zinc-800 transition-colors duration-300">
+                <Card key={promo.id} className="border-editorial-border dark:!bg-[#0F1423] dark:!border-[#1E2741] transition-colors duration-300">
                   <CardContent className="p-6 grid gap-4">
                     <div className="flex flex-col md:flex-row gap-6">
                       {/* Image section */}
@@ -1156,7 +1157,7 @@ export default function AdminDashboard() {
             </div>
             <div className="grid gap-4">
               {testimonials.map(testi => (
-                <Card key={testi.id} className="border-editorial-border dark:!bg-zinc-900 dark:!border-zinc-800 transition-colors duration-300">
+                <Card key={testi.id} className="border-editorial-border dark:!bg-[#0F1423] dark:!border-[#1E2741] transition-colors duration-300">
                   <CardContent className="p-6 grid gap-4">
                     <div className="flex flex-col md:flex-row gap-6">
                       {/* Image section */}

@@ -45,8 +45,8 @@ const Countdown = ({ endDate }: { endDate: string }) => {
     return () => clearTimeout(timer);
   });
 
-  if (new Date(endDate).getTime() - new Date().getTime() <= 0) {
-    return null; // Don't show if expired
+  if (isNaN(new Date(endDate).getTime()) || new Date(endDate).getTime() - new Date().getTime() <= 0) {
+    return null; // Don't show if expired or invalid date
   }
 
   return (
