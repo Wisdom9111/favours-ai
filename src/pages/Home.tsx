@@ -279,7 +279,7 @@ export default function Home() {
             className="mt-12"
           >
             <span className="section-title">What I Offer</span>
-            <div className="grid grid-cols-1 gap-5 mt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-6">
               {products.map((product) => (
                 <motion.div 
                   key={product.id}
@@ -287,11 +287,11 @@ export default function Home() {
                   className="bg-white border border-editorial-border rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col group"
                 >
                   {product.image && (
-                    <div className="h-40 w-full overflow-hidden bg-slate-50 relative border-b border-editorial-border">
+                    <div className="aspect-square md:aspect-auto md:h-72 w-full overflow-hidden bg-slate-50 relative border-b border-editorial-border">
                       <img 
                         src={product.image} 
                         alt={product.title}
-                        className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
                   )}
@@ -331,7 +331,7 @@ export default function Home() {
               className="mt-12"
             >
               <span className="section-title text-red-600">Active Promos</span>
-              <div className="grid grid-cols-1 gap-5 mt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mt-4">
                 {activePromos.map((promo) => {
                   const product = products.find(prod => prod.id === promo.productId);
                   const originalPriceStr = product ? product.price : null;
@@ -346,11 +346,11 @@ export default function Home() {
                       className="bg-red-50 border border-red-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col group relative"
                     >
                       {promo.image && (
-                        <div className="h-40 w-full overflow-hidden bg-slate-50 relative border-b border-red-200">
+                        <div className="aspect-square md:aspect-auto md:h-72 w-full overflow-hidden bg-slate-50 relative border-b border-red-200">
                           <img 
                             src={promo.image} 
                             alt={promo.title}
-                            className="w-full h-full object-contain p-2 group-hover:scale-105 transition-transform duration-500 opacity-90"
+                            className="w-full h-full object-contain p-4 group-hover:scale-105 transition-transform duration-500 opacity-90"
                           />
                         </div>
                       )}
