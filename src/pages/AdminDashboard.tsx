@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "motion/react";
-import { Trash2, Plus, Save, LogOut, LayoutDashboard, Briefcase, Settings, Menu, X, FileText, Package } from "lucide-react";
+import { Trash2, Plus, Save, LogOut, LayoutDashboard, Briefcase, Settings, Menu, X, FileText, Package, Copy } from "lucide-react";
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -693,6 +693,21 @@ export default function AdminDashboard() {
                     <div className="flex flex-col md:flex-row gap-6">
                       {/* Image section */}
                       <div className="flex-shrink-0 w-full md:w-48 space-y-2">
+                        <div className="flex items-center justify-between bg-slate-100/50 border border-slate-200 rounded px-2 py-1 mb-2">
+                          <span className="text-[10px] uppercase font-bold text-slate truncate flex-grow mr-2" title={product.id}>
+                            ID: {product.id}
+                          </span>
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(product.id);
+                              alert("Copied Product ID: " + product.id);
+                            }} 
+                            className="text-navy/60 hover:text-navy shrink-0 transition-colors bg-white border border-slate-200 p-1 rounded-sm shadow-sm"
+                            title="Copy ID"
+                          >
+                            <Copy size={12} />
+                          </button>
+                        </div>
                         <label className="text-[10px] uppercase font-bold text-slate">Product Image (Optional)</label>
                         {product.image ? (
                           <div className="aspect-square bg-slate-100 rounded-lg overflow-hidden mb-2 relative group">
@@ -738,11 +753,15 @@ export default function AdminDashboard() {
                           </div>
                           <div className="space-y-2">
                             <label className="text-[10px] uppercase font-bold text-slate">Price</label>
-                            <Input 
-                              placeholder="$0.00" 
-                              value={product.price} 
-                              onChange={e => updateProductLocal(product.id, "price", e.target.value)}
-                            />
+                            <div className="relative">
+                              <span className="absolute left-3 top-[50%] -translate-y-1/2 text-slate font-medium text-sm">$</span>
+                              <Input 
+                                placeholder="0.00" 
+                                value={product.price?.replace(/^\$/, '') || ''} 
+                                onChange={e => updateProductLocal(product.id, "price", '$' + e.target.value)}
+                                className="pl-6"
+                              />
+                            </div>
                           </div>
                         </div>
                         <div className="space-y-2">
