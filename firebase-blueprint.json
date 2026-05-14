@@ -85,6 +85,18 @@
         "order": { "type": "number" }
       },
       "required": ["title", "productId", "promoPrice", "endDate"]
+    },
+    "testimonial": {
+      "title": "Testimonial",
+      "description": "Client reviews and success stories",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "image": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["title", "description"]
     }
   },
   "firestore": {
@@ -107,6 +119,10 @@
     "/promos/{promoId}": {
       "schema": "promo",
       "description": "Stores promotional offers"
+    },
+    "/testimonials/{testimonialId}": {
+      "schema": "testimonial",
+      "description": "Stores client testimonials"
     },
     "/admins/{adminId}": {
       "schema": "admin",

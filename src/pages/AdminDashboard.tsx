@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "motion/react";
-import { Trash2, Plus, Save, LogOut, LayoutDashboard, Briefcase, Settings, Menu, X, FileText, Package, Copy, Tag } from "lucide-react";
+import { Trash2, Plus, Save, LogOut, LayoutDashboard, Briefcase, Settings, Menu, X, FileText, Package, Copy, Tag, MessageSquare } from "lucide-react";
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -37,6 +37,7 @@ export default function AdminDashboard() {
   const [experiences, setExperiences] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [promos, setPromos] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState(() => {
     return localStorage.getItem("adminActiveTab") || "home";
   });
@@ -103,11 +104,18 @@ export default function AdminDashboard() {
       setPromos(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (err) => handleFirestoreError(err, OperationType.LIST, "promos"));
 
+    // Fetch Testimonials
+    const qTesti = query(collection(db, "testimonials"), orderBy("order", "asc"));
+    const unsubTesti = onSnapshot(qTesti, (snap) => {
+      setTestimonials(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (err) => handleFirestoreError(err, OperationType.LIST, "testimonials"));
+
     return () => {
       unsubServices();
       unsubExp();
       unsubProducts();
       unsubPromos();
+      unsubTesti();
     };
   }, [user]);
 
@@ -309,6 +317,57 @@ export default function AdminDashboard() {
     }
   };
 
+  const addTestimonial = async () => {
+    try {
+      const newDocRef = doc(collection(db, "testimonials"));
+      const newTesti = {
+        title: "Client Testimonial",
+        description: "Excellent service!",
+        image: "",
+        order: testimonials.length
+      };
+      await setDoc(newDocRef, newTesti);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, "testimonials");
+    }
+  };
+
+  const deleteTestimonial = async (id: string) => {
+    if (confirm("Delete this testimonial?")) {
+      await deleteDoc(doc(db, "testimonials", id));
+    }
+  };
+
+  const updateTestimonialLocal = (id: string, field: string, value: any) => {
+    setTestimonials(prev => prev.map(t => t.id === id ? { ...t, [field]: value } : t));
+  };
+
+  const saveTestimonial = async (id: string) => {
+    const testi = testimonials.find(t => t.id === id);
+    if (!testi) return;
+    try {
+      await setDoc(doc(db, "testimonials", id), testi);
+      alert("Testimonial saved successfully!");
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, `testimonials/${id}`);
+    }
+  };
+
+  const handleTestimonialImageUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 1048576) {
+        alert("File is too large! Please select an image under 1MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateTestimonialLocal(id, "image", reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const overrideTheme = async (mode: 'light' | 'dark') => {
     try {
       await setDoc(doc(db, "settings", "theme"), {
@@ -365,6 +424,7 @@ export default function AdminDashboard() {
       { id: "experiences", label: "Professional Timeline", icon: FileText },
       { id: "products", label: "Products", icon: Package },
       { id: "promos", label: "Promos", icon: Tag },
+      { id: "testimonials", label: "Testimonials", icon: MessageSquare },
     ];
 
     return (
@@ -472,6 +532,8 @@ export default function AdminDashboard() {
               {activeTab === 'services' && 'My Expertise'}
               {activeTab === 'experiences' && 'Professional Timeline'}
               {activeTab === 'products' && 'Products'}
+              {activeTab === 'promos' && 'Promos'}
+              {activeTab === 'testimonials' && 'Testimonials'}
             </h2>
             <div className="flex items-center gap-2">
               {(services.length === 0 && experiences.length === 0) && (
@@ -1031,6 +1093,100 @@ export default function AdminDashboard() {
                               <Save size={16} /> Save Changes
                             </Button>
                             <Button variant="destructive" size="icon" onClick={() => deletePromo(promo.id)}>
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+          <TabsContent value="testimonials">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-serif">Manage Testimonials</h2>
+              <Button onClick={addTestimonial} className="bg-green-600 hover:bg-green-700 gap-2">
+                <Plus size={16} /> Add Testimonial
+              </Button>
+            </div>
+            <div className="grid gap-4">
+              {testimonials.map(testi => (
+                <Card key={testi.id} className="border-editorial-border">
+                  <CardContent className="p-6 grid gap-4">
+                    <div className="flex flex-col md:flex-row gap-6">
+                      {/* Image section */}
+                      <div className="flex-shrink-0 w-full md:w-48 space-y-2">
+                        <label className="text-[10px] uppercase font-bold text-slate">Client Photo (Optional)</label>
+                        {testi.image ? (
+                          <div className="aspect-square bg-slate-100 rounded-lg overflow-hidden mb-2 relative group">
+                            <img src={testi.image} alt="Client" className="w-full h-full object-cover" />
+                            <button 
+                              onClick={() => updateTestimonialLocal(testi.id, "image", "")}
+                              className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="aspect-square bg-slate-100 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300 mb-2">
+                            <MessageSquare className="text-slate-400" size={32} />
+                          </div>
+                        )}
+                        <Input 
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleTestimonialImageUpload(testi.id, e)}
+                          className="text-xs cursor-pointer"
+                        />
+                        <div className="text-[10px] text-slate/60 px-1">Or enter image URL:</div>
+                        <Input 
+                          placeholder="https://..." 
+                          value={testi.image || ""} 
+                          onChange={e => updateTestimonialLocal(testi.id, "image", e.target.value)}
+                          className="text-xs"
+                        />
+                      </div>
+                      
+                      {/* Content section */}
+                      <div className="flex-grow space-y-4">
+                        <div className="space-y-2">
+                          <label className="text-[10px] uppercase font-bold text-slate">What the testimony is for (Title)</label>
+                          <Input 
+                            placeholder="e.g. Excellent Customer Support" 
+                            value={testi.title} 
+                            onChange={e => updateTestimonialLocal(testi.id, "title", e.target.value)}
+                            className="text-lg font-bold"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] uppercase font-bold text-slate">Description</label>
+                          <Textarea 
+                            placeholder="The client's story or review..." 
+                            value={testi.description} 
+                            onChange={e => updateTestimonialLocal(testi.id, "description", e.target.value)}
+                            rows={3}
+                          />
+                        </div>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-4">
+                          <div className="flex items-center gap-2">
+                            <label className="text-[10px] uppercase font-bold text-slate">Order</label>
+                            <Input 
+                              type="number" 
+                              className="w-20" 
+                              value={testi.order} 
+                              onChange={e => updateTestimonialLocal(testi.id, "order", parseInt(e.target.value))}
+                            />
+                          </div>
+                          <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                            <Button 
+                              onClick={() => saveTestimonial(testi.id)} 
+                              className="bg-navy hover:bg-slate gap-2 flex-grow sm:flex-grow-0"
+                            >
+                              <Save size={16} /> Save Changes
+                            </Button>
+                            <Button variant="destructive" size="icon" onClick={() => deleteTestimonial(testi.id)}>
                               <Trash2 size={16} />
                             </Button>
                           </div>

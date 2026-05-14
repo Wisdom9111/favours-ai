@@ -52,6 +52,12 @@ service cloud.firestore {
       allow write: if isAdmin() && isValidId(promoId);
     }
 
+    // Testimonials
+    match /testimonials/{testimonialId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidId(testimonialId);
+    }
+
     // Settings
     match /settings/{settingId} {
       allow read: if true;

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
-import { ArrowRight, Headphones, Settings, UserCheck, CheckCircle2, User, MessageSquare, Briefcase, X } from "lucide-react";
+import { ArrowRight, Headphones, Settings, UserCheck, CheckCircle2, User, MessageSquare, Briefcase, X, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -113,6 +113,7 @@ export default function Home() {
 
   const [products, setProducts] = useState<any[]>([]);
   const [promos, setPromos] = useState<any[]>([]);
+  const [testimonials, setTestimonials] = useState<any[]>([]);
   
   const [showPromoPopup, setShowPromoPopup] = useState(false);
   const [currentPromo, setCurrentPromo] = useState<any>(null);
@@ -192,11 +193,21 @@ export default function Home() {
       console.error("Promos error", error);
     });
 
+    // Fetch Testimonials
+    const qTesti = query(collection(db, "testimonials"), orderBy("order", "asc"));
+    const unsubTesti = onSnapshot(qTesti, (snap) => {
+      const dbTesti = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      setTestimonials(dbTesti);
+    }, (error) => {
+      console.error("Testimonials error", error);
+    });
+
     return () => {
       unsubServices();
       unsubExp();
       unsubProducts();
       unsubPromos();
+      unsubTesti();
     };
   }, []);
 
@@ -413,11 +424,53 @@ export default function Home() {
           );
         })()}
 
+        {/* Testimonials Section */}
+        {testimonials.length > 0 && products.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="mt-12"
+          >
+            <span className="section-title text-blue-600">Client Success Stories</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-6">
+              {testimonials.map((testi) => (
+                <motion.div 
+                  key={testi.id}
+                  whileHover={{ y: -5 }}
+                  className="bg-blue-50/50 border border-blue-100 rounded-xl p-6 hover:shadow-xl transition-all duration-300 flex flex-col group relative"
+                >
+                  <MessageSquare className="absolute top-4 right-4 text-blue-200/50" size={48} strokeWidth={1} />
+                  <div className="flex items-center gap-4 mb-4 relative z-10">
+                    {testi.image ? (
+                      <img src={testi.image} alt={testi.title} className="w-12 h-12 rounded-full object-cover border-2 border-blue-200" />
+                    ) : (
+                      <div className="w-12 h-12 rounded-full bg-blue-200 flex items-center justify-center text-blue-600 font-bold shrink-0">
+                        {testi.title.charAt(0)}
+                      </div>
+                    )}
+                    <div>
+                      <h4 className="font-bold text-navy text-sm leading-tight">{testi.title}</h4>
+                      <div className="flex text-yellow-500 gap-0.5 mt-1">
+                        {[...Array(5)].map((_, i) => <Star key={i} size={12} fill="currentColor" />)}
+                      </div>
+                    </div>
+                  </div>
+                  <p className="text-sm text-slate-700 italic relative z-10 leading-relaxed overflow-y-auto w-full">
+                    "{testi.description}"
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         <motion.div 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.6 }}
+          transition={{ duration: 0.5, delay: 0.65 }}
           className="mt-12"
         >
           <span className="section-title">Core Skills</span>
