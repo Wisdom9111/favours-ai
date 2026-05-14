@@ -1,5 +1,5 @@
-import { motion } from "motion/react";
-import { ArrowRight, Headphones, Settings, UserCheck, CheckCircle2, User, MessageSquare, Briefcase } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import { ArrowRight, Headphones, Settings, UserCheck, CheckCircle2, User, MessageSquare, Briefcase, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
@@ -113,6 +113,29 @@ export default function Home() {
 
   const [products, setProducts] = useState<any[]>([]);
   const [promos, setPromos] = useState<any[]>([]);
+  
+  const [showPromoPopup, setShowPromoPopup] = useState(false);
+  const [currentPromo, setCurrentPromo] = useState<any>(null);
+
+  useEffect(() => {
+    const activePromos = promos.filter(p => 
+      new Date(p.endDate).getTime() > new Date().getTime() &&
+      products.some(prod => prod.id === p.productId)
+    );
+    
+    if (activePromos.length > 0) {
+      const promoId = activePromos[0].id;
+      const seen = sessionStorage.getItem(`seen_promo_${promoId}`);
+      if (!seen) {
+        setCurrentPromo(activePromos[0]);
+        const timer = setTimeout(() => {
+          setShowPromoPopup(true);
+          sessionStorage.setItem(`seen_promo_${promoId}`, "true");
+        }, 1500);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [promos, products]);
 
   useEffect(() => {
     // Fetch home content
@@ -520,6 +543,81 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      <AnimatePresence>
+        {showPromoPopup && currentPromo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy/80 backdrop-blur-sm"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0, y: 50 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.8, opacity: 0, y: 50 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-white rounded-2xl overflow-hidden max-w-sm w-full shadow-2xl relative"
+            >
+              <button 
+                onClick={() => setShowPromoPopup(false)}
+                className="absolute top-3 right-3 bg-white/50 hover:bg-slate-200 text-navy p-1.5 rounded-full backdrop-blur-sm transition-colors z-10"
+              >
+                <X size={18} />
+              </button>
+              
+              {currentPromo.image && (
+                <div className="aspect-square w-full bg-slate-50 relative">
+                  <img src={currentPromo.image} alt={currentPromo.title} className="w-full h-full object-contain p-4" />
+                </div>
+              )}
+              
+              <div className="p-6 text-center">
+                <div className="inline-block bg-red-100 text-red-600 font-bold px-3 py-1 rounded-full text-xs mb-3">
+                  LIMITED TIME OFFER
+                </div>
+                <h3 className="text-2xl font-serif text-navy mb-2">{currentPromo.title}</h3>
+                
+                <div className="flex justify-center items-center gap-2 mb-2">
+                  <span className="text-2xl font-bold text-red-600">{currentPromo.promoPrice}</span>
+                  {(() => {
+                    const product = products.find(prod => prod.id === currentPromo.productId);
+                    return product && product.price ? (
+                      <span className="text-sm text-slate-400 line-through">{product.price}</span>
+                    ) : null;
+                  })()}
+                </div>
+                
+                <p className="text-slate text-sm mb-6 max-h-24 overflow-y-auto">{currentPromo.description}</p>
+                
+                <div className="mb-4 text-left border-t border-slate-100 pt-3">
+                  <div className="text-[10px] uppercase font-bold text-red-800/60 mb-1 text-center">Ends In:</div>
+                  <div className="flex justify-center">
+                    <Countdown endDate={currentPromo.endDate} />
+                  </div>
+                </div>
+                
+                <div className="flex flex-col gap-2">
+                  <HireMeModal>
+                    <Button 
+                      onClick={() => setShowPromoPopup(false)}
+                      className="w-full bg-red-600 hover:bg-red-700 text-white rounded-xl h-12 text-base font-medium shadow-lg shadow-red-600/20"
+                    >
+                      Claim Offer Now
+                    </Button>
+                  </HireMeModal>
+                  <button 
+                    onClick={() => setShowPromoPopup(false)}
+                    className="text-xs text-slate-400 mt-2 hover:text-slate-600 font-medium pb-2"
+                  >
+                    Maybe Later
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
