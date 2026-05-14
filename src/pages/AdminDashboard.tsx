@@ -41,10 +41,20 @@ export default function AdminDashboard() {
     return localStorage.getItem("adminActiveTab") || "home";
   });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [currentThemeSetting, setCurrentThemeSetting] = useState<any>(null);
 
   useEffect(() => {
     localStorage.setItem("adminActiveTab", activeTab);
   }, [activeTab]);
+
+  useEffect(() => {
+    const unsub = onSnapshot(doc(db, "settings", "theme"), (docSnap) => {
+      if (docSnap.exists()) {
+        setCurrentThemeSetting(docSnap.data());
+      }
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -296,6 +306,18 @@ export default function AdminDashboard() {
         updatePromoLocal(id, "image", reader.result as string);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const overrideTheme = async (mode: 'light' | 'dark') => {
+    try {
+      await setDoc(doc(db, "settings", "theme"), {
+        mode,
+        timestamp: new Date().getTime()
+      });
+      alert(`Theme explicitly set to ${mode} mode until the next scheduled transition.`);
+    } catch(err) {
+      handleFirestoreError(err, OperationType.WRITE, "settings/theme");
     }
   };
 
@@ -586,6 +608,34 @@ export default function AdminDashboard() {
                 <Button onClick={saveHomeContent} className="bg-navy hover:bg-slate gap-2">
                   <Save size={16} /> Save Identity Settings
                 </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="mt-6">
+              <CardHeader>
+                <CardTitle className="font-serif">Global Theme Override</CardTitle>
+                <p className="text-sm text-slate">
+                  By default, the website automatically switches to Dark Mode between 4 PM and 7 AM everyday. 
+                  Selecting a theme below will force that mode indefinitely until the next automatic 4 PM or 7 AM transition occurs.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex gap-4">
+                  <Button 
+                    variant={currentThemeSetting?.mode === "light" ? "default" : "outline"}
+                    onClick={() => overrideTheme("light")}
+                    className="w-full"
+                  >
+                    Force Light Mode
+                  </Button>
+                  <Button 
+                    variant={currentThemeSetting?.mode === "dark" ? "default" : "outline"}
+                    onClick={() => overrideTheme("dark")}
+                    className="w-full bg-slate-900 text-white hover:bg-slate-800"
+                  >
+                    Force Dark Mode
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
