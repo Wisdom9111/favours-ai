@@ -3,45 +3,80 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { GraduationCap, Briefcase, Award } from "lucide-react";
+import { useEffect, useState } from "react";
+import { db } from "../lib/firebase";
+import { collection, onSnapshot, orderBy, query, doc, getDoc } from "firebase/firestore";
 
 export default function About() {
-  const experiences = [
+  const [experiences, setExperiences] = useState<any[]>([]);
+  const [education, setEducation] = useState<any[]>([
     {
-      role: "Customer Support Specialist / Virtual Assistant",
-      company: "Self-Employed",
-      period: "2025 – Present",
-      description: "Responded to inquiries, assisted with order processing/complaints, managed scheduling, and resolved issues to improve retention.",
-    },
-    {
-      role: "Administrative Manager",
-      company: "Melissa Black Boutique",
-      period: "Jan 2023 – Dec 2025",
-      description: "Oversaw daily operations, managed inventory/restocking, handled sales records, managed social media, and coordinated photo/video shoots.",
-    },
-    {
-      role: "Front Desk / Customer Care Representative",
-      company: "12 Basket Food Ltd",
-      period: "Jan 2024 – Aug 2024",
-      description: "Processed pickup/delivery orders, answered WhatsApp/phone inquiries, resolved complaints, and coordinated with kitchen teams.",
-    },
-    {
-      role: "Secretary",
-      company: "Norland Nigeria Ltd",
-      period: "Aug 2024 – Dec 2024",
-      description: "Managed correspondence, scheduled meetings, maintained confidential filing systems, and prepared official reports.",
-    },
-  ];
+      role: "B.Sc. Education (Computer Science)",
+      company: "Lagos State University (LASU)",
+      period: "2018 – 2023",
+      description: "",
+    }
+  ]);
 
-  const skills = [
-    "Customer Support",
-    "Virtual Assistance",
-    "Professional Communication",
-    "Data Entry & Record Keeping",
-    "Scheduling",
-    "Problem Solving",
-    "Time Management",
-    "Remote Work Efficiency",
-  ];
+  const [bio, setBio] = useState({
+    ownerName: "Ejindu Favour Blessing",
+    professionalSummary: "A detail-oriented and reliable Remote Customer Care Representative and Virtual Assistant with hands-on experience supporting customers and business operations.",
+    aboutQuote: "With a solid foundation in Computer Science and a passion for exceptional service, I bridge the gap between technical efficiency and human-centric support.",
+    location: "Lagos, Nigeria",
+    skills: [
+      "Customer Support",
+      "Virtual Assistance",
+      "Professional Communication",
+      "Data Entry & Record Keeping",
+      "Scheduling",
+      "Problem Solving",
+      "Time Management",
+      "Remote Work Efficiency",
+    ]
+  });
+
+  useEffect(() => {
+    // Fetch bio content
+    const homeDoc = doc(db, "pageContent", "home");
+    onSnapshot(homeDoc, (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        setBio({ 
+          ownerName: data.ownerName || bio.ownerName,
+          location: data.location || bio.location,
+          aboutQuote: data.aboutQuote || bio.aboutQuote,
+          professionalSummary: data.professionalSummary || bio.professionalSummary,
+          skills: data.skills ? data.skills.split(",").map((s: string) => s.trim()) : bio.skills
+        });
+      }
+    });
+
+    // Fetch experiences
+    const qExp = query(collection(db, "experiences"), orderBy("order", "desc"));
+    const unsubExp = onSnapshot(qExp, (snap) => {
+      const allData = snap.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          role: data.title,
+          company: data.location,
+          period: data.date,
+          description: data.description || "",
+          type: data.type || "work"
+        };
+      });
+      
+      const workData = allData.filter(e => e.type === "work");
+      const eduData = allData.filter(e => e.type === "education");
+
+      if (workData.length > 0) setExperiences(workData);
+      if (eduData.length > 0) setEducation(eduData);
+    });
+
+    return () => unsubExp();
+  }, []);
+
+  const skills = bio.skills;
 
   return (
     <div className="grid lg:grid-cols-[380px_1fr] gap-[1px] bg-editorial-border min-h-[calc(100vh-100px)]">
@@ -60,7 +95,7 @@ export default function About() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-[42px] leading-[1.1] mb-5 text-navy font-serif"
           >
-            Ejindu Favour Blessing
+            {bio.ownerName}
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -68,7 +103,7 @@ export default function About() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-[16px] leading-relaxed text-slate italic mb-8"
           >
-            "A detail-oriented and reliable Remote Customer Care Representative and Virtual Assistant with hands-on experience supporting customers and business operations."
+            "{bio.professionalSummary}"
           </motion.p>
           <div className="space-y-6">
             <motion.div
@@ -78,9 +113,13 @@ export default function About() {
               transition={{ delay: 0.3 }}
             >
               <span className="section-title">Education</span>
-              <p className="text-[14px] font-bold">B.Sc. Education (Computer Science)</p>
-              <p className="text-[13px] text-slate">Lagos State University (LASU)</p>
-              <p className="text-[12px] text-slate/60">2018 – 2023</p>
+              {education.map((edu, i) => (
+                <div key={i} className="mb-4">
+                  <p className="text-[14px] font-bold">{edu.role}</p>
+                  <p className="text-[13px] text-slate">{edu.company}</p>
+                  <p className="text-[12px] text-slate/60">{edu.period}</p>
+                </div>
+              ))}
             </motion.div>
             <motion.div 
               initial={{ opacity: 0 }}
@@ -90,7 +129,7 @@ export default function About() {
               className="mt-8"
             >
               <span className="section-title">Location</span>
-              <p className="text-[14px] font-bold">Lagos, Nigeria</p>
+              <p className="text-[14px] font-bold">{bio.location}</p>
               <p className="text-[12px] text-slate/60 italic">Supporting Clients Globally</p>
             </motion.div>
           </div>
@@ -189,7 +228,7 @@ export default function About() {
               className="prose prose-slate max-w-none text-slate leading-relaxed"
             >
               <p className="mb-4 text-lg md:text-xl font-serif italic text-navy/80 leading-relaxed">
-                "With a solid foundation in Computer Science and a passion for exceptional service, I bridge the gap between technical efficiency and human-centric support."
+                "{bio.aboutQuote}"
               </p>
               <p className="mb-4">
                 My career has been defined by a commitment to streamlining operations and ensuring that every customer interaction is handled with professionalism and care. I thrive in remote environments, leveraging digital tools to maintain high levels of organization and productivity. 

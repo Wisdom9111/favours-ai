@@ -1,30 +1,41 @@
 import { motion } from "motion/react";
-import { ArrowRight, Headphones, Settings, UserCheck, CheckCircle2, User } from "lucide-react";
+import { ArrowRight, Headphones, Settings, UserCheck, CheckCircle2, User, MessageSquare, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { HireMeModal } from "../components/HireMeModal";
+import { useEffect, useState } from "react";
+import { db } from "../lib/firebase";
+import { collection, doc, getDoc, onSnapshot, orderBy, query } from "firebase/firestore";
+
+const iconMap: Record<string, any> = {
+  Headphones,
+  Settings,
+  UserCheck,
+  MessageSquare,
+  Briefcase
+};
 
 export default function Home() {
-  const services = [
+  const [services, setServices] = useState([
     {
       title: "Customer Support",
       description: "Expert handling of inquiries and complaints via Phone, Email, Chat, and WhatsApp.",
-      icon: Headphones,
+      icon: "Headphones",
     },
     {
       title: "Administrative Management",
       description: "Seamless scheduling, inventory tracking, documentation, and workflow optimization.",
-      icon: Settings,
+      icon: "Settings",
     },
     {
       title: "Virtual Assistance",
       description: "Remote support utilizing top digital tools to keep your business organized and efficient.",
-      icon: UserCheck,
+      icon: "UserCheck",
     },
-  ];
+  ]);
 
-  const experiences = [
+  const [experiences, setExperiences] = useState([
     {
       date: "2025 – Present",
       title: "Customer Support / VA",
@@ -45,15 +56,62 @@ export default function Home() {
       title: "Secretary",
       location: "Norland Nigeria Ltd",
     },
-  ];
+  ]);
 
-  const skills = [
-    "Problem Solving",
-    "Data Entry",
-    "Scheduling",
-    "Communication",
-    "Remote Ops",
-  ];
+  const [dynamicContent, setDynamicContent] = useState({
+    heroTitle: "Reliable Remote Support for Growing Businesses",
+    heroDescription: "I provide expert Virtual Assistance and Customer Care to help you streamline operations, handle administrative tasks, and deliver exceptional customer experiences.",
+    professionalSummary: "Detail-oriented and reliable Remote Representative with hands-on experience supporting customers across retail, food service, and admin sectors.",
+    skills: ["Problem Solving", "Data Entry", "Scheduling", "Communication", "Remote Ops"],
+    badgeTitle: "Top-Rated Virtual Assistant",
+    badgeSubtitle: "100% Remote Efficiency | Multi-Channel Support Expert",
+    badgeVerifiedText: "Verified Excellence"
+  });
+
+  useEffect(() => {
+    // Fetch home content
+    const homeDoc = doc(db, "pageContent", "home");
+    onSnapshot(homeDoc, (snap) => {
+      if (snap.exists()) {
+        const data = snap.data();
+        setDynamicContent({
+          heroTitle: data.heroTitle || dynamicContent.heroTitle,
+          heroDescription: data.heroDescription || dynamicContent.heroDescription,
+          professionalSummary: data.professionalSummary || dynamicContent.professionalSummary,
+          skills: data.skills ? data.skills.split(",").map((s: string) => s.trim()) : dynamicContent.skills,
+          badgeTitle: data.badgeTitle || dynamicContent.badgeTitle,
+          badgeSubtitle: data.badgeSubtitle || dynamicContent.badgeSubtitle,
+          badgeVerifiedText: data.badgeVerifiedText || dynamicContent.badgeVerifiedText
+        });
+      }
+    });
+
+    // Fetch services
+    const qServices = query(collection(db, "services"), orderBy("order", "asc"));
+    const unsubServices = onSnapshot(qServices, (snap) => {
+      const dbServices = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      if (dbServices.length > 0) {
+        setServices(dbServices);
+      }
+    });
+
+    // Fetch experiences
+    const qExp = query(collection(db, "experiences"), orderBy("order", "desc"));
+    const unsubExp = onSnapshot(qExp, (snap) => {
+      const dbExp = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      const filteredExp = dbExp.filter(e => e.type !== "education");
+      if (filteredExp.length > 0) {
+        setExperiences(filteredExp);
+      }
+    });
+
+    return () => {
+      unsubServices();
+      unsubExp();
+    };
+  }, []);
+
+  const skills = dynamicContent.skills;
 
   return (
     <div className="grid lg:grid-cols-[450px_1fr] gap-[1px] bg-editorial-border min-h-[calc(100vh-100px)]">
@@ -100,7 +158,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-[42px] leading-[1.1] mb-5 text-navy font-serif"
           >
-            Reliable Remote Support for Growing Businesses
+            {dynamicContent.heroTitle}
           </motion.h1>
           <motion.p 
             initial={{ opacity: 0, y: 20 }}
@@ -109,7 +167,7 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-[16px] leading-relaxed text-slate mb-[30px]"
           >
-            I provide expert Virtual Assistance and Customer Care to help you streamline operations, handle administrative tasks, and deliver exceptional customer experiences.
+            {dynamicContent.heroDescription}
           </motion.p>
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -141,8 +199,24 @@ export default function Home() {
         >
           <span className="section-title">Professional Summary</span>
           <p className="text-[14px] leading-relaxed italic text-slate">
-            Detail-oriented and reliable Remote Representative with hands-on experience supporting customers across retail, food service, and admin sectors.
+            {dynamicContent.professionalSummary}
           </p>
+        </motion.div>
+        <motion.div 
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.5 }}
+          className="mt-8"
+        >
+          <span className="section-title">Core Skills</span>
+          <div className="flex flex-wrap gap-2">
+            {skills.map((skill, i) => (
+              <span key={i} className="text-[11px] uppercase tracking-wider font-bold bg-navy/5 text-navy px-2 py-1 rounded">
+                {skill}
+              </span>
+            ))}
+          </div>
         </motion.div>
       </motion.section>
 
@@ -192,20 +266,18 @@ export default function Home() {
             </div>
 
             <h2 className="text-white text-2xl md:text-3xl font-serif font-bold mb-4 tracking-tight">
-              Top-Rated Virtual Assistant
+              {dynamicContent.badgeTitle}
             </h2>
             
             <div className="w-16 h-px bg-white/20 mb-8" />
 
-            <p className="text-white/90 text-xl md:text-2xl font-sans font-light leading-relaxed tracking-wide">
-              100% Remote Efficiency <br />
-              <span className="text-white/60 font-serif italic text-lg md:text-xl">|</span> <br />
-              Multi-Channel Support Expert
-            </p>
+            <div className="text-white/90 text-xl md:text-2xl font-sans font-light leading-relaxed tracking-wide whitespace-pre-line">
+              {dynamicContent.badgeSubtitle}
+            </div>
 
             <div className="absolute -bottom-6 -right-6 bg-white p-6 border border-editorial-border rounded-xl shadow-2xl hidden sm:block">
               <p className="text-navy font-bold text-2xl">Verified</p>
-              <p className="text-slate text-sm uppercase tracking-widest">Excellence</p>
+              <p className="text-slate text-sm uppercase tracking-widest">{dynamicContent.badgeVerifiedText}</p>
             </div>
           </motion.div>
         </div>
@@ -240,16 +312,22 @@ export default function Home() {
           >
             <span className="section-title">My Expertise</span>
             <div className="space-y-4">
-              {services.map((service, i) => (
-                <motion.div 
-                  key={i} 
-                  whileHover={{ scale: 1.02 }}
-                  className="editorial-card"
-                >
-                  <h3 className="text-[16px] font-serif mb-2">{service.title}</h3>
-                  <p className="text-[13px] leading-relaxed text-slate">{service.description}</p>
-                </motion.div>
-              ))}
+              {services.map((service, i) => {
+                const Icon = iconMap[service.icon] || Settings;
+                return (
+                  <motion.div 
+                    key={i} 
+                    whileHover={{ scale: 1.02 }}
+                    className="editorial-card"
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                       <Icon className="w-5 h-5 text-navy opacity-70" />
+                       <h3 className="text-[16px] font-serif">{service.title}</h3>
+                    </div>
+                    <p className="text-[13px] leading-relaxed text-slate">{service.description}</p>
+                  </motion.div>
+                );
+              })}
             </div>
           </motion.div>
         </div>

@@ -1,0 +1,80 @@
+{
+  "entities": {
+    "siteContent": {
+      "title": "Site Content",
+      "description": "General text content for various pages",
+      "type": "object",
+      "properties": {
+        "pageId": { "type": "string" },
+        "heroTitle": { "type": "string" },
+        "heroDescription": { "type": "string" },
+        "professionalSummary": { "type": "string" },
+        "ownerName": { "type": "string" },
+        "contactEmail": { "type": "string" },
+        "contactPhone": { "type": "string" },
+        "location": { "type": "string" },
+        "skills": { "type": "string" },
+        "tools": { "type": "string" },
+        "badgeTitle": { "type": "string" },
+        "badgeSubtitle": { "type": "string" },
+        "badgeVerifiedText": { "type": "string" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["pageId"]
+    },
+    "experience": {
+      "title": "Work Experience",
+      "description": "Timeline items for education and career",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string" },
+        "title": { "type": "string" },
+        "location": { "type": "string" },
+        "description": { "type": "string" },
+        "type": { "type": "string", "enum": ["work", "education"] },
+        "order": { "type": "number" }
+      },
+      "required": ["date", "title", "location"]
+    },
+    "service": {
+      "title": "Service",
+      "description": "Expertise areas",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "icon": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["title", "description"]
+    },
+    "admin": {
+      "title": "Admin",
+      "description": "Admin user record for authorization",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string" }
+      },
+      "required": ["email"]
+    }
+  },
+  "firestore": {
+    "/pageContent/{pageId}": {
+      "schema": "siteContent",
+      "description": "Stores page-specific content"
+    },
+    "/experiences/{experienceId}": {
+      "schema": "experience",
+      "description": "Stores individual timeline items"
+    },
+    "/services/{serviceId}": {
+      "schema": "service",
+      "description": "Stores services/expertise items"
+    },
+    "/admins/{adminId}": {
+      "schema": "admin",
+      "description": "Records of users with admin privileges"
+    }
+  }
+}
