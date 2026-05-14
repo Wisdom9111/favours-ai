@@ -205,7 +205,18 @@ export default function AdminDashboard() {
   if (loading) return <div className="flex items-center justify-center min-h-screen font-serif">Authenticating...</div>;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+      {/* Mobile Header */}
+      <div className="md:hidden bg-navy text-white p-4 flex justify-between items-center">
+        <div>
+          <h1 className="text-lg font-serif font-bold">Admin Dashboard</h1>
+          <p className="text-[10px] text-white/60">{user?.email}</p>
+        </div>
+        <button onClick={handleLogout} className="text-white/60 hover:text-white">
+          <LogOut size={20} />
+        </button>
+      </div>
+
       {/* Sidebar Navigation */}
       <aside className="w-64 bg-navy text-white p-6 hidden md:flex flex-col">
         <div className="mb-10">
@@ -229,32 +240,31 @@ export default function AdminDashboard() {
         </button>
       </aside>
 
-      <main className="flex-grow p-8 max-w-5xl mx-auto w-full">
+      <main className="flex-grow p-4 md:p-8 max-w-5xl mx-auto w-full overflow-x-hidden">
         <Tabs defaultValue="home" className="space-y-6">
-          <div className="flex justify-between items-center mb-8">
-            <TabsList className="bg-white border border-editorial-border">
-              <TabsTrigger value="home" className="gap-2">
-                <Settings size={16} /> Landing Page
-              </TabsTrigger>
-              <TabsTrigger value="global" className="gap-2">
-                <LayoutDashboard size={16} /> Site Identity
-              </TabsTrigger>
-              <TabsTrigger value="services" className="gap-2">
-                <Briefcase size={16} /> My Expertise
-              </TabsTrigger>
-              <TabsTrigger value="experiences" className="gap-2">
-                 Professional Timeline
-              </TabsTrigger>
-            </TabsList>
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-8">
+            <div className="overflow-x-auto pb-2 -mx-4 px-4 lg:pb-0 lg:mx-0 lg:px-0">
+              <TabsList className="bg-white border border-editorial-border w-max min-w-full justify-start lg:w-auto h-auto">
+                <TabsTrigger value="home" className="gap-2 whitespace-nowrap py-2">
+                  <Settings size={16} /> Landing Page
+                </TabsTrigger>
+                <TabsTrigger value="global" className="gap-2 whitespace-nowrap py-2">
+                  <LayoutDashboard size={16} /> Site Identity
+                </TabsTrigger>
+                <TabsTrigger value="services" className="gap-2 whitespace-nowrap py-2">
+                  <Briefcase size={16} /> My Expertise
+                </TabsTrigger>
+                <TabsTrigger value="experiences" className="gap-2 whitespace-nowrap py-2">
+                   Professional Timeline
+                </TabsTrigger>
+              </TabsList>
+            </div>
             <div className="flex items-center gap-2">
               {(services.length === 0 && experiences.length === 0) && (
-                <Button onClick={seedInitialData} variant="outline" className="border-red-200 text-red-600 hover:bg-red-50 text-xs">
+                <Button onClick={seedInitialData} variant="outline" className="border-red-200 text-red-600 hover:bg-red-50 text-xs w-full lg:w-auto">
                   Initialize Database
                 </Button>
               )}
-              <Button onClick={handleLogout} variant="ghost" className="md:hidden">
-                <LogOut size={16} />
-              </Button>
             </div>
           </div>
 
@@ -425,7 +435,7 @@ export default function AdminDashboard() {
                         onChange={e => updateServiceLocal(service.id, "icon", e.target.value)}
                       />
                     </div>
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-2">
                         <label className="text-[10px] uppercase font-bold text-slate">Order</label>
                         <Input 
@@ -435,10 +445,10 @@ export default function AdminDashboard() {
                           onChange={e => updateServiceLocal(service.id, "order", parseInt(e.target.value))}
                         />
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                         <Button 
                           onClick={() => saveService(service.id)} 
-                          className="bg-navy hover:bg-slate gap-2"
+                          className="bg-navy hover:bg-slate gap-2 flex-grow sm:flex-grow-0"
                         >
                           <Save size={16} /> Save Changes
                         </Button>
@@ -512,7 +522,7 @@ export default function AdminDashboard() {
                         rows={2}
                       />
                     </div>
-                    <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                       <div className="flex items-center gap-2">
                         <label className="text-[10px] uppercase font-bold text-slate">Order</label>
                         <Input 
@@ -522,10 +532,10 @@ export default function AdminDashboard() {
                           onChange={e => updateExperienceLocal(exp.id, "order", parseInt(e.target.value))}
                         />
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                         <Button 
                           onClick={() => saveExperience(exp.id)} 
-                          className="bg-navy hover:bg-slate gap-2"
+                          className="bg-navy hover:bg-slate gap-2 flex-grow sm:flex-grow-0"
                         >
                           <Save size={16} /> Save Changes
                         </Button>
