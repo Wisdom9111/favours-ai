@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "motion/react";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -23,11 +25,11 @@ export default function AdminLogin() {
       await signInWithEmailAndPassword(auth, email, password);
       navigate("/admin/dashboard");
     } catch (err: any) {
-      // Special handling for the initial admin account
+      // Special handling for the admin accounts
       if (
         (err.code === "auth/user-not-found" || err.code === "auth/invalid-credential") &&
-        email === "wisdomezekiel28@gmail.com" &&
-        password === "Adminsonly."
+        ((email === "wisdomezekiel28@gmail.com" && password === "Adminsonly.") ||
+         (email === "ejindufavour14@gmail.com" && password === "FavourcreativesAdmin*"))
       ) {
         try {
           await createUserWithEmailAndPassword(auth, email, password);
@@ -69,16 +71,25 @@ export default function AdminLogin() {
                   className="border-editorial-border"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 relative">
                 <label className="text-xs uppercase tracking-wider font-bold text-slate">Password</label>
-                <Input
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="border-editorial-border"
-                />
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="border-editorial-border pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate hover:text-navy focus:outline-none"
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
               </div>
               {error && <p className="text-red-500 text-xs italic">{error}</p>}
               <Button 
