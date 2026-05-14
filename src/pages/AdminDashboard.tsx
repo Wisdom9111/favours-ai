@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "motion/react";
-import { Trash2, Plus, Save, LogOut, LayoutDashboard, Briefcase, Settings } from "lucide-react";
+import { Trash2, Plus, Save, LogOut, LayoutDashboard, Briefcase, Settings, Menu, X, FileText } from "lucide-react";
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -34,6 +34,8 @@ export default function AdminDashboard() {
   });
   const [services, setServices] = useState<any[]>([]);
   const [experiences, setExperiences] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState("home");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (u) => {
@@ -204,61 +206,119 @@ export default function AdminDashboard() {
 
   if (loading) return <div className="flex items-center justify-center min-h-screen font-serif">Authenticating...</div>;
 
+  const NavLinks = () => (
+    <nav className="flex-grow space-y-2 mt-6">
+      <button 
+        onClick={() => { setActiveTab("home"); setIsMobileMenuOpen(false); }}
+        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeTab === 'home' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
+      >
+        <Settings size={20} />
+        <span>Landing Page</span>
+      </button>
+      <button 
+        onClick={() => { setActiveTab("global"); setIsMobileMenuOpen(false); }}
+        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeTab === 'global' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
+      >
+        <LayoutDashboard size={20} />
+        <span>Site Identity</span>
+      </button>
+      <button 
+        onClick={() => { setActiveTab("services"); setIsMobileMenuOpen(false); }}
+        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeTab === 'services' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
+      >
+        <Briefcase size={20} />
+        <span>My Expertise</span>
+      </button>
+      <button 
+        onClick={() => { setActiveTab("experiences"); setIsMobileMenuOpen(false); }}
+        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeTab === 'experiences' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
+      >
+        <FileText size={20} />
+        <span>Professional Timeline</span>
+      </button>
+    </nav>
+  );
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row relative">
       {/* Mobile Header */}
-      <div className="md:hidden bg-navy text-white p-4 flex justify-between items-center">
-        <div>
-          <h1 className="text-lg font-serif font-bold">Admin Dashboard</h1>
-          <p className="text-[10px] text-white/60">{user?.email}</p>
+      <div className="md:hidden bg-navy text-white p-4 flex justify-between items-center sticky top-0 z-20">
+        <div className="flex items-center gap-3">
+          <button onClick={() => setIsMobileMenuOpen(true)} className="text-white focus:outline-none">
+            <Menu size={24} />
+          </button>
+          <h1 className="text-lg font-serif font-bold">Dashboard</h1>
         </div>
-        <button onClick={handleLogout} className="text-white/60 hover:text-white">
-          <LogOut size={20} />
-        </button>
+        <p className="text-[10px] text-white/60">{user?.email}</p>
       </div>
 
-      {/* Sidebar Navigation */}
-      <aside className="w-64 bg-navy text-white p-6 hidden md:flex flex-col">
-        <div className="mb-10">
-          <h1 className="text-xl font-serif font-bold">Admin Dashboard</h1>
-          <p className="text-xs text-white/60 mt-1">{user?.email}</p>
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            />
+            <motion.aside 
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "tween", duration: 0.3 }}
+              className="fixed inset-y-0 left-0 w-64 bg-navy text-white p-6 flex flex-col z-50 md:hidden shadow-xl"
+            >
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h1 className="text-xl font-serif font-bold">Admin</h1>
+                  <p className="text-xs text-white/60 mt-1 truncate">{user?.email}</p>
+                </div>
+                <button onClick={() => setIsMobileMenuOpen(false)} className="text-white/60 hover:text-white">
+                  <X size={24} />
+                </button>
+              </div>
+              <NavLinks />
+              <button 
+                onClick={handleLogout}
+                className="mt-auto flex items-center gap-3 p-3 text-red-300 hover:text-red-100 transition-colors w-full rounded-lg hover:bg-white/5"
+              >
+                <LogOut size={20} />
+                <span>Sign Out</span>
+              </button>
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Desktop Sidebar */}
+      <aside className="w-64 bg-navy text-white p-6 hidden md:flex flex-col sticky top-0 h-screen overflow-y-auto">
+        <div className="mb-6">
+          <h1 className="text-xl font-serif font-bold whitespace-nowrap overflow-hidden text-ellipsis">Admin Dashboard</h1>
+          <p className="text-xs text-white/60 mt-1 break-all">{user?.email}</p>
         </div>
         
-        <nav className="flex-grow space-y-2">
-          <div className="flex items-center gap-3 p-3 bg-white/10 rounded-lg cursor-pointer">
-            <LayoutDashboard size={20} />
-            <span>Site Content</span>
-          </div>
-        </nav>
+        <NavLinks />
 
         <button 
           onClick={handleLogout}
-          className="flex items-center gap-3 p-3 text-white/60 hover:text-white transition-colors"
+          className="mt-auto flex items-center gap-3 p-3 text-red-300 hover:text-red-100 transition-colors w-full rounded-lg hover:bg-white/5"
         >
           <LogOut size={20} />
           <span>Sign Out</span>
         </button>
       </aside>
 
-      <main className="flex-grow p-4 md:p-8 max-w-5xl mx-auto w-full overflow-x-hidden">
-        <Tabs defaultValue="home" className="space-y-6">
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-8">
-            <div className="overflow-x-auto pb-2 -mx-4 px-4 lg:pb-0 lg:mx-0 lg:px-0">
-              <TabsList className="bg-white border border-editorial-border w-max min-w-full justify-start lg:w-auto h-auto">
-                <TabsTrigger value="home" className="gap-2 whitespace-nowrap py-2">
-                  <Settings size={16} /> Landing Page
-                </TabsTrigger>
-                <TabsTrigger value="global" className="gap-2 whitespace-nowrap py-2">
-                  <LayoutDashboard size={16} /> Site Identity
-                </TabsTrigger>
-                <TabsTrigger value="services" className="gap-2 whitespace-nowrap py-2">
-                  <Briefcase size={16} /> My Expertise
-                </TabsTrigger>
-                <TabsTrigger value="experiences" className="gap-2 whitespace-nowrap py-2">
-                   Professional Timeline
-                </TabsTrigger>
-              </TabsList>
-            </div>
+      <main className="flex-grow p-4 md:p-8 max-w-5xl mx-auto w-full overflow-x-hidden min-h-screen">
+        <Tabs value={activeTab} className="space-y-6">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 mb-4">
+            <h2 className="text-2xl font-serif text-navy capitalize hidden md:block">
+              {activeTab === 'home' && 'Landing Page'}
+              {activeTab === 'global' && 'Site Identity'}
+              {activeTab === 'services' && 'My Expertise'}
+              {activeTab === 'experiences' && 'Professional Timeline'}
+            </h2>
             <div className="flex items-center gap-2">
               {(services.length === 0 && experiences.length === 0) && (
                 <Button onClick={seedInitialData} variant="outline" className="border-red-200 text-red-600 hover:bg-red-50 text-xs w-full lg:w-auto">
