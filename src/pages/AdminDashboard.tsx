@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import React from "react";
 import { auth, db, handleFirestoreError, OperationType } from "../lib/firebase";
 import { collection, onSnapshot, doc, setDoc, deleteDoc, query, orderBy, getDoc } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
@@ -9,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "motion/react";
-import { Trash2, Plus, Save, LogOut, LayoutDashboard, Briefcase, Settings, Menu, X, FileText } from "lucide-react";
+import { Trash2, Plus, Save, LogOut, LayoutDashboard, Briefcase, Settings, Menu, X, FileText, Package } from "lucide-react";
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -34,6 +35,7 @@ export default function AdminDashboard() {
   });
   const [services, setServices] = useState<any[]>([]);
   const [experiences, setExperiences] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("home");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -72,9 +74,16 @@ export default function AdminDashboard() {
       setExperiences(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (err) => handleFirestoreError(err, OperationType.LIST, "experiences"));
 
+    // Fetch Products
+    const qProducts = query(collection(db, "products"), orderBy("order", "asc"));
+    const unsubProducts = onSnapshot(qProducts, (snap) => {
+      setProducts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (err) => handleFirestoreError(err, OperationType.LIST, "products"));
+
     return () => {
       unsubServices();
       unsubExp();
+      unsubProducts();
     };
   }, [user]);
 
@@ -170,6 +179,58 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleImageUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 1048576) { // 1MB limit for base64 in Firestore doc approx
+        alert("File is too large! Please select an image under 1MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updateProductLocal(id, "image", reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const addProduct = async () => {
+    try {
+      const id = "product-" + Date.now();
+      const newProduct = {
+        title: "New Product",
+        description: "Product description...",
+        price: "$0.00",
+        image: "",
+        order: products.length
+      };
+      await setDoc(doc(db, "products", id), newProduct);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, "products");
+    }
+  };
+
+  const deleteProduct = async (id: string) => {
+    if (confirm("Delete this product?")) {
+      await deleteDoc(doc(db, "products", id));
+    }
+  };
+
+  const updateProductLocal = (id: string, field: string, value: any) => {
+    setProducts(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+  };
+
+  const saveProduct = async (id: string) => {
+    const product = products.find(p => p.id === id);
+    if (!product) return;
+    try {
+      await setDoc(doc(db, "products", id), product);
+      alert("Product saved successfully!");
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, `products/${id}`);
+    }
+  };
+
   const seedInitialData = async () => {
     if (!confirm("This will overwrite/create default content in the database. Continue?")) return;
 
@@ -235,6 +296,13 @@ export default function AdminDashboard() {
       >
         <FileText size={20} />
         <span>Professional Timeline</span>
+      </button>
+      <button 
+        onClick={() => { setActiveTab("products"); setIsMobileMenuOpen(false); }}
+        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeTab === 'products' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
+      >
+        <Package size={20} />
+        <span>Products</span>
       </button>
     </nav>
   );
@@ -318,6 +386,7 @@ export default function AdminDashboard() {
               {activeTab === 'global' && 'Site Identity'}
               {activeTab === 'services' && 'My Expertise'}
               {activeTab === 'experiences' && 'Professional Timeline'}
+              {activeTab === 'products' && 'Products'}
             </h2>
             <div className="flex items-center gap-2">
               {(services.length === 0 && experiences.length === 0) && (
@@ -602,6 +671,111 @@ export default function AdminDashboard() {
                         <Button variant="destructive" size="icon" onClick={() => deleteExperience(exp.id)}>
                           <Trash2 size={16} />
                         </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="products">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-serif">Manage Products</h2>
+              <Button onClick={addProduct} className="bg-green-600 hover:bg-green-700 gap-2">
+                <Plus size={16} /> Add Product
+              </Button>
+            </div>
+            <div className="grid gap-4">
+              {products.map(product => (
+                <Card key={product.id} className="border-editorial-border">
+                  <CardContent className="p-6 grid gap-4">
+                    <div className="flex flex-col md:flex-row gap-6">
+                      {/* Image section */}
+                      <div className="flex-shrink-0 w-full md:w-48 space-y-2">
+                        <label className="text-[10px] uppercase font-bold text-slate">Product Image (Optional)</label>
+                        {product.image ? (
+                          <div className="aspect-square bg-slate-100 rounded-lg overflow-hidden mb-2 relative group">
+                            <img src={product.image} alt="Product" className="w-full h-full object-cover" />
+                            <button 
+                              onClick={() => updateProductLocal(product.id, "image", "")}
+                              className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="aspect-square bg-slate-100 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300 mb-2">
+                            <Package className="text-slate-400" size={32} />
+                          </div>
+                        )}
+                        <Input 
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload(product.id, e)}
+                          className="text-xs cursor-pointer"
+                        />
+                        <div className="text-[10px] text-slate/60 px-1">Or enter image URL:</div>
+                        <Input 
+                          placeholder="https://..." 
+                          value={product.image || ""} 
+                          onChange={e => updateProductLocal(product.id, "image", e.target.value)}
+                          className="text-xs"
+                        />
+                      </div>
+                      
+                      {/* Content section */}
+                      <div className="flex-grow space-y-4">
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] uppercase font-bold text-slate">Product Name</label>
+                            <Input 
+                              placeholder="Product Title" 
+                              value={product.title} 
+                              onChange={e => updateProductLocal(product.id, "title", e.target.value)}
+                              className="text-lg font-bold"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] uppercase font-bold text-slate">Price</label>
+                            <Input 
+                              placeholder="$0.00" 
+                              value={product.price} 
+                              onChange={e => updateProductLocal(product.id, "price", e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] uppercase font-bold text-slate">Description</label>
+                          <Textarea 
+                            placeholder="Product description..." 
+                            value={product.description} 
+                            onChange={e => updateProductLocal(product.id, "description", e.target.value)}
+                            rows={3}
+                          />
+                        </div>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-4">
+                          <div className="flex items-center gap-2">
+                            <label className="text-[10px] uppercase font-bold text-slate">Order</label>
+                            <Input 
+                              type="number" 
+                              className="w-20" 
+                              value={product.order} 
+                              onChange={e => updateProductLocal(product.id, "order", parseInt(e.target.value))}
+                            />
+                          </div>
+                          <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                            <Button 
+                              onClick={() => saveProduct(product.id)} 
+                              className="bg-navy hover:bg-slate gap-2 flex-grow sm:flex-grow-0"
+                            >
+                              <Save size={16} /> Save Changes
+                            </Button>
+                            <Button variant="destructive" size="icon" onClick={() => deleteProduct(product.id)}>
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </CardContent>

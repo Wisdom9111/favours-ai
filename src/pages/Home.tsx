@@ -68,6 +68,8 @@ export default function Home() {
     badgeVerifiedText: "Verified Excellence"
   });
 
+  const [products, setProducts] = useState<any[]>([]);
+
   useEffect(() => {
     // Fetch home content
     const homeDoc = doc(db, "pageContent", "home");
@@ -105,9 +107,19 @@ export default function Home() {
       }
     });
 
+    // Fetch Products
+    const qProducts = query(collection(db, "products"), orderBy("order", "asc"));
+    const unsubProducts = onSnapshot(qProducts, (snap) => {
+      const dbProducts = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      setProducts(dbProducts);
+    }, (error) => {
+      console.error("Products error", error);
+    });
+
     return () => {
       unsubServices();
       unsubExp();
+      unsubProducts();
     };
   }, []);
 
@@ -331,6 +343,51 @@ export default function Home() {
             </div>
           </motion.div>
         </div>
+
+        {/* Products Section */}
+        {products.length > 0 && (
+          <div className="p-[50px] pt-0">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+            >
+              <span className="section-title">What I Offer</span>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+                {products.map((product) => (
+                  <motion.div 
+                    key={product.id}
+                    whileHover={{ y: -5 }}
+                    className="bg-white border border-editorial-border rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col group"
+                  >
+                    {product.image && (
+                      <div className="h-48 w-full overflow-hidden bg-slate-50 relative border-b border-editorial-border">
+                        <img 
+                          src={product.image} 
+                          alt={product.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+                    )}
+                    <div className="p-6 flex flex-col flex-grow">
+                      <div className="flex justify-between items-start mb-2 gap-4">
+                        <h3 className="text-xl font-serif text-navy leading-tight">{product.title}</h3>
+                        <span className="text-sm font-bold text-navy whitespace-nowrap bg-slate-100 px-3 py-1 rounded-full">{product.price}</span>
+                      </div>
+                      <p className="text-sm text-slate leading-relaxed mb-6 flex-grow">{product.description}</p>
+                      <HireMeModal>
+                        <Button className="w-full bg-navy hover:bg-slate text-white mt-auto rounded-lg">
+                          Inquire Now
+                        </Button>
+                      </HireMeModal>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        )}
       </section>
     </div>
   );

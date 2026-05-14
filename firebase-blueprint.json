@@ -57,6 +57,19 @@
         "role": { "type": "string" }
       },
       "required": ["email"]
+    },
+    "product": {
+      "title": "Product",
+      "description": "Product items offered",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "string" },
+        "image": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["title", "price"]
     }
   },
   "firestore": {
@@ -71,6 +84,10 @@
     "/services/{serviceId}": {
       "schema": "service",
       "description": "Stores services/expertise items"
+    },
+    "/products/{productId}": {
+      "schema": "product",
+      "description": "Stores products"
     },
     "/admins/{adminId}": {
       "schema": "admin",
