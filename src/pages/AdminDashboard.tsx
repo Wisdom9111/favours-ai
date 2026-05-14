@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { motion, AnimatePresence } from "motion/react";
-import { Trash2, Plus, Save, LogOut, LayoutDashboard, Briefcase, Settings, Menu, X, FileText, Package, Copy } from "lucide-react";
+import { Trash2, Plus, Save, LogOut, LayoutDashboard, Briefcase, Settings, Menu, X, FileText, Package, Copy, Tag } from "lucide-react";
 
 export default function AdminDashboard() {
   const [user, setUser] = useState<any>(null);
@@ -36,6 +36,7 @@ export default function AdminDashboard() {
   const [services, setServices] = useState<any[]>([]);
   const [experiences, setExperiences] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
+  const [promos, setPromos] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState("home");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -80,10 +81,17 @@ export default function AdminDashboard() {
       setProducts(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
     }, (err) => handleFirestoreError(err, OperationType.LIST, "products"));
 
+    // Fetch Promos
+    const qPromos = query(collection(db, "promos"), orderBy("order", "asc"));
+    const unsubPromos = onSnapshot(qPromos, (snap) => {
+      setPromos(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (err) => handleFirestoreError(err, OperationType.LIST, "promos"));
+
     return () => {
       unsubServices();
       unsubExp();
       unsubProducts();
+      unsubPromos();
     };
   }, [user]);
 
@@ -231,6 +239,60 @@ export default function AdminDashboard() {
     }
   };
 
+  const addPromo = async () => {
+    try {
+      const newDocRef = doc(collection(db, "promos"));
+      const newPromo = {
+        title: "New Promo",
+        description: "Promo description...",
+        image: "",
+        productId: "",
+        promoPrice: "$0.00",
+        endDate: new Date((new Date()).getTime() + 86400000).toISOString().slice(0, 16), // tomorrow
+        order: promos.length
+      };
+      await setDoc(newDocRef, newPromo);
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, "promos");
+    }
+  };
+
+  const deletePromo = async (id: string) => {
+    if (confirm("Delete this promo?")) {
+      await deleteDoc(doc(db, "promos", id));
+    }
+  };
+
+  const updatePromoLocal = (id: string, field: string, value: any) => {
+    setPromos(prev => prev.map(p => p.id === id ? { ...p, [field]: value } : p));
+  };
+
+  const savePromo = async (id: string) => {
+    const promo = promos.find(p => p.id === id);
+    if (!promo) return;
+    try {
+      await setDoc(doc(db, "promos", id), promo);
+      alert("Promo saved successfully!");
+    } catch (err) {
+      handleFirestoreError(err, OperationType.WRITE, `promos/${id}`);
+    }
+  };
+
+  const handlePromoImageUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 1048576) {
+        alert("File is too large! Please select an image under 1MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        updatePromoLocal(id, "image", reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const seedInitialData = async () => {
     if (!confirm("This will overwrite/create default content in the database. Continue?")) return;
 
@@ -303,6 +365,13 @@ export default function AdminDashboard() {
       >
         <Package size={20} />
         <span>Products</span>
+      </button>
+      <button 
+        onClick={() => { setActiveTab("promos"); setIsMobileMenuOpen(false); }}
+        className={`w-full flex items-center gap-3 p-3 rounded-lg transition-colors ${activeTab === 'promos' ? 'bg-white/20 text-white' : 'text-white/60 hover:text-white hover:bg-white/10'}`}
+      >
+        <Tag size={20} />
+        <span>Promos</span>
       </button>
     </nav>
   );
@@ -791,6 +860,133 @@ export default function AdminDashboard() {
                               <Save size={16} /> Save Changes
                             </Button>
                             <Button variant="destructive" size="icon" onClick={() => deleteProduct(product.id)}>
+                              <Trash2 size={16} />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="promos">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-serif">Manage Promos</h2>
+              <Button onClick={addPromo} className="bg-green-600 hover:bg-green-700 gap-2">
+                <Plus size={16} /> Add Promo
+              </Button>
+            </div>
+            <div className="grid gap-4">
+              {promos.map(promo => (
+                <Card key={promo.id} className="border-editorial-border">
+                  <CardContent className="p-6 grid gap-4">
+                    <div className="flex flex-col md:flex-row gap-6">
+                      {/* Image section */}
+                      <div className="flex-shrink-0 w-full md:w-48 space-y-2">
+                        <label className="text-[10px] uppercase font-bold text-slate">Promo Image (Optional)</label>
+                        {promo.image ? (
+                          <div className="aspect-square bg-slate-100 rounded-lg overflow-hidden mb-2 relative group">
+                            <img src={promo.image} alt="Promo" className="w-full h-full object-cover" />
+                            <button 
+                              onClick={() => updatePromoLocal(promo.id, "image", "")}
+                              className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <X size={14} />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="aspect-square bg-slate-100 rounded-lg flex items-center justify-center border-2 border-dashed border-slate-300 mb-2">
+                            <Tag className="text-slate-400" size={32} />
+                          </div>
+                        )}
+                        <Input 
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handlePromoImageUpload(promo.id, e)}
+                          className="text-xs cursor-pointer"
+                        />
+                        <div className="text-[10px] text-slate/60 px-1">Or enter image URL:</div>
+                        <Input 
+                          placeholder="https://..." 
+                          value={promo.image || ""} 
+                          onChange={e => updatePromoLocal(promo.id, "image", e.target.value)}
+                          className="text-xs"
+                        />
+                      </div>
+                      
+                      {/* Content section */}
+                      <div className="flex-grow space-y-4">
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] uppercase font-bold text-slate">Promo Name</label>
+                            <Input 
+                              placeholder="Promo Title" 
+                              value={promo.title} 
+                              onChange={e => updatePromoLocal(promo.id, "title", e.target.value)}
+                              className="text-lg font-bold"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] uppercase font-bold text-slate">Product ID (Copy from Products)</label>
+                            <Input 
+                              placeholder="Enter Product ID..." 
+                              value={promo.productId} 
+                              onChange={e => updatePromoLocal(promo.id, "productId", e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <label className="text-[10px] uppercase font-bold text-slate">Promo Price</label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-[50%] -translate-y-1/2 text-slate font-medium text-sm">$</span>
+                              <Input 
+                                placeholder="0.00" 
+                                value={promo.promoPrice?.replace(/^\$/, '') || ''} 
+                                onChange={e => updatePromoLocal(promo.id, "promoPrice", '$' + e.target.value)}
+                                className="pl-6"
+                              />
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-[10px] uppercase font-bold text-slate">End Date & Time</label>
+                            <Input 
+                              type="datetime-local"
+                              value={promo.endDate} 
+                              onChange={e => updatePromoLocal(promo.id, "endDate", e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <label className="text-[10px] uppercase font-bold text-slate">Description</label>
+                          <Textarea 
+                            placeholder="Promo description..." 
+                            value={promo.description} 
+                            onChange={e => updatePromoLocal(promo.id, "description", e.target.value)}
+                            rows={2}
+                          />
+                        </div>
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-4">
+                          <div className="flex items-center gap-2">
+                            <label className="text-[10px] uppercase font-bold text-slate">Order</label>
+                            <Input 
+                              type="number" 
+                              className="w-20" 
+                              value={promo.order} 
+                              onChange={e => updatePromoLocal(promo.id, "order", parseInt(e.target.value))}
+                            />
+                          </div>
+                          <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                            <Button 
+                              onClick={() => savePromo(promo.id)} 
+                              className="bg-navy hover:bg-slate gap-2 flex-grow sm:flex-grow-0"
+                            >
+                              <Save size={16} /> Save Changes
+                            </Button>
+                            <Button variant="destructive" size="icon" onClick={() => deletePromo(promo.id)}>
                               <Trash2 size={16} />
                             </Button>
                           </div>

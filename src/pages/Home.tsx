@@ -16,6 +16,49 @@ const iconMap: Record<string, any> = {
   Briefcase
 };
 
+const Countdown = ({ endDate }: { endDate: string }) => {
+  const calculateTimeLeft = () => {
+    const difference = new Date(endDate).getTime() - new Date().getTime();
+    let timeLeft = {
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0
+    };
+    if (difference > 0) {
+      timeLeft = {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60)
+      };
+    }
+    return timeLeft;
+  };
+
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+  
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+    return () => clearTimeout(timer);
+  });
+
+  if (new Date(endDate).getTime() - new Date().getTime() <= 0) {
+    return null; // Don't show if expired
+  }
+
+  return (
+    <div className="flex gap-2 text-xs font-mono font-bold mt-2">
+      <div className="bg-navy text-white px-2 py-1 rounded">{timeLeft.days}d</div>
+      <div className="bg-navy text-white px-2 py-1 rounded">{timeLeft.hours}h</div>
+      <div className="bg-navy text-white px-2 py-1 rounded">{timeLeft.minutes}m</div>
+      <div className="bg-navy text-white px-2 py-1 rounded">{timeLeft.seconds}s</div>
+    </div>
+  );
+};
+
 export default function Home() {
   const [services, setServices] = useState([
     {
@@ -69,6 +112,7 @@ export default function Home() {
   });
 
   const [products, setProducts] = useState<any[]>([]);
+  const [promos, setPromos] = useState<any[]>([]);
 
   useEffect(() => {
     // Fetch home content
@@ -116,10 +160,20 @@ export default function Home() {
       console.error("Products error", error);
     });
 
+    // Fetch Promos
+    const qPromos = query(collection(db, "promos"), orderBy("order", "asc"));
+    const unsubPromos = onSnapshot(qPromos, (snap) => {
+      const dbPromos = snap.docs.map(doc => ({ id: doc.id, ...doc.data() } as any));
+      setPromos(dbPromos);
+    }, (error) => {
+      console.error("Promos error", error);
+    });
+
     return () => {
       unsubServices();
       unsubExp();
       unsubProducts();
+      unsubPromos();
     };
   }, []);
 
@@ -214,6 +268,74 @@ export default function Home() {
             {dynamicContent.professionalSummary}
           </p>
         </motion.div>
+
+        {/* Promos Section */}
+        {promos.filter(p => new Date(p.endDate).getTime() > new Date().getTime()).length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.45 }}
+            className="mt-12"
+          >
+            <span className="section-title text-red-600">Active Promos</span>
+            <div className="grid grid-cols-1 gap-5 mt-4">
+              {promos.filter(p => new Date(p.endDate).getTime() > new Date().getTime()).map((promo) => {
+                const product = products.find(prod => prod.id === promo.productId);
+                const originalPriceStr = product ? product.price : null;
+                const originalPriceNum = originalPriceStr ? parseFloat(originalPriceStr.replace(/[^0-9.]/g, '')) : 0;
+                const promoPriceNum = parseFloat(promo.promoPrice?.replace(/[^0-9.]/g, '') || '0');
+                const percentOff = originalPriceNum > 0 ? Math.round(((originalPriceNum - promoPriceNum) / originalPriceNum) * 100) : 0;
+                
+                return (
+                  <motion.div 
+                    key={promo.id}
+                    whileHover={{ y: -5 }}
+                    className="bg-red-50 border border-red-200 rounded-xl overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col group relative"
+                  >
+                    {percentOff > 0 && (
+                      <div className="absolute top-2 right-2 bg-red-600 text-white font-bold px-2 py-1 rounded text-xs z-10">
+                        {percentOff}% OFF
+                      </div>
+                    )}
+                    {promo.image && (
+                      <div className="h-40 w-full overflow-hidden bg-slate-50 relative border-b border-red-200">
+                        <img 
+                          src={promo.image} 
+                          alt={promo.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-90"
+                        />
+                      </div>
+                    )}
+                    <div className="p-5 flex flex-col flex-grow">
+                      <div className="flex justify-between items-start mb-2 gap-3">
+                        <h3 className="text-lg font-serif text-red-900 leading-tight">{promo.title}</h3>
+                        <div className="flex flex-col items-end">
+                          <span className="text-xs font-bold text-red-600 whitespace-nowrap bg-red-100 px-2 py-1 rounded-full">{promo.promoPrice}</span>
+                          {originalPriceStr && (
+                            <span className="text-[10px] text-slate-400 line-through mt-1">{originalPriceStr}</span>
+                          )}
+                        </div>
+                      </div>
+                      <p className="text-[13px] text-red-800/80 leading-relaxed mb-4 flex-grow">{promo.description}</p>
+                      
+                      <div className="mb-4">
+                        <div className="text-[10px] uppercase font-bold text-red-800/60 mb-1">Ends In:</div>
+                        <Countdown endDate={promo.endDate} />
+                      </div>
+                      
+                      <HireMeModal>
+                        <Button className="w-full bg-red-600 hover:bg-red-700 text-white mt-auto rounded-lg text-sm h-9">
+                          Claim Offer
+                        </Button>
+                      </HireMeModal>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
 
         {/* Products Section */}
         {products.length > 0 && (

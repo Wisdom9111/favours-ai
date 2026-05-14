@@ -70,6 +70,21 @@
         "order": { "type": "number" }
       },
       "required": ["title", "price"]
+    },
+    "promo": {
+      "title": "Promo",
+      "description": "Promotional offers",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "image": { "type": "string" },
+        "productId": { "type": "string" },
+        "promoPrice": { "type": "string" },
+        "endDate": { "type": "string" },
+        "order": { "type": "number" }
+      },
+      "required": ["title", "productId", "promoPrice", "endDate"]
     }
   },
   "firestore": {
@@ -88,6 +103,10 @@
     "/products/{productId}": {
       "schema": "product",
       "description": "Stores products"
+    },
+    "/promos/{promoId}": {
+      "schema": "promo",
+      "description": "Stores promotional offers"
     },
     "/admins/{adminId}": {
       "schema": "admin",
